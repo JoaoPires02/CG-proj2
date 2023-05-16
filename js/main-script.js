@@ -16,8 +16,8 @@ function createScene() {
 
     scene = new THREE.Scene();
 
-
     scene.add(new THREE.AxisHelper(10));
+    scene.background = new THREE.Color("rgb(200, 200, 200)");
 
     createTrailer(0, 0, 0);
 
@@ -26,26 +26,22 @@ function createScene() {
 //////////////////////
 /* CREATE CAMERA(S) */
 //////////////////////
-function createCamera() {
+function createCamera(id, x, y, z) {
     'use strict';
-    cameras[0] = new THREE.PerspectiveCamera(70,
-                                         window.innerWidth / window.innerHeight,
-                                         1,
-                                         1000);
-    cameras[0].position.x = 50;
-    cameras[0].position.y = 50;
-    cameras[0].position.z = 50;
-    cameras[0].lookAt(scene.position);
+    cameras[id] = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
+    cameras[id].position.x = x;
+    cameras[id].position.y = y;
+    cameras[id].position.z = z;
+    cameras[id].lookAt(scene.position);
+}
 
-
-    cameras[1] = new THREE.PerspectiveCamera(70,
-        window.innerWidth / window.innerHeight,
-        1,
-        1000);
-    cameras[1].position.x = 0;
-    cameras[1].position.y = 0;
-    cameras[1].position.z = -50;
-    cameras[1].lookAt(scene.position);
+function createAllCameras() {
+    'use strict';
+    createCamera(0, 0, 0, 50);
+    createCamera(1, -50, 0, 0);
+    createCamera(2, 0, 50, 0);
+    createCamera(3, 50, 50, 0);
+    createCamera(4, 20, 0, 50);
 }
 
 
@@ -77,9 +73,10 @@ function addTrailerBase(obj, x, y, z) {
 function addWheel(obj, x, y ,z) {
     'use strict'
 
-    geometry = new THREE.CylinderGeometry(1, 1, 1.5, 8);
+    geometry = new THREE.CylinderGeometry(1, 1, 1.5, 8, 1, false);
     mesh = new THREE.Mesh(geometry, material);
     mesh.position.set(x, y, z);
+    mesh.rotation.z = Math.PI / 2;
     obj.add(mesh);
 }
 
@@ -92,7 +89,10 @@ function createTrailer(x, y, z) {
 
     addTrailerBody(trailer, 0, 0, 0)
     addTrailerBase(trailer, 0, -5.5, -1.5);
-    addWheel(trailer, 0, 0, 0);
+    addWheel(trailer, 3.25, -6, -6.5);
+    addWheel(trailer, 3.25, -6, -8.5);
+    addWheel(trailer, -3.25, -6, -6.5);
+    addWheel(trailer, -3.25, -6, -8.5);
 
     scene.add(trailer);
 
@@ -145,9 +145,9 @@ function init() {
     document.body.appendChild(renderer.domElement);
 
     createScene();
-    createCamera();
+    createAllCameras();
 
-    render(0);
+    render(1);
 
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("resize", onResize);
@@ -177,7 +177,20 @@ function onKeyDown(e) {
 
     switch (e.keyCode) {
         case 49: //1
+            render(0);
+            break;
+        case 50: //2
             render(1);
+            break;
+        case 51: //3
+            render(2);
+            break;
+        case 52: //4
+            render(3);
+            break;
+        case 53: //5
+            render(4);
+            break;
     }
 
 }
