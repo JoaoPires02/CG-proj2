@@ -108,13 +108,17 @@ function createTrailer(x, y, z) {
 }
 
 
-function addRobotChest(obj, x, y ,z) {
+function addRobotCore(obj, x, y ,z) {
     'use strict';
 
     var geometry = new THREE.BoxGeometry(8, 4, 4);
     var mesh = new THREE.Mesh(geometry, materials[0]);
     mesh.position.set(x, y, z);
     obj.add(mesh);
+    addRobotWaist(robot, 0, -4.5, 1.5)
+    addWheel(robot, 3.25, -5, 0);
+    addWheel(robot, -3.25, -5, 0);
+    addRobotAbdomen(robot, 0, -3, 0);
 }
 
 function addRobotAbdomen(obj, x, y, z) {
@@ -164,8 +168,8 @@ function addRobotHead(obj, x, y, z) {
     mesh.position.set(x, y, z);
     obj.add(mesh);
     addRobotEye(mesh, -0.5, 0.5, 1.05);
-    addRobotAntenna(mesh, -1.25, 0.75, 0);
     addRobotEye(mesh, 0.5, 0.5, 1.05);
+    addRobotAntenna(mesh, -1.25, 0.75, 0);
     addRobotAntenna(mesh, 1.25, 0.75, 0);
 }
 
@@ -241,14 +245,10 @@ function createRobot(x, y ,z) {
 
     robot = new THREE.Object3D();
 
-    addRobotChest(robot, 0, 0, 0);
-    addRobotAbdomen(robot, 0, -3, 0)
+    addRobotCore(robot, 0, 0, 0);
     addRobotArm(robot, "r", 4.5, 0, -1.5);
     addRobotArm(robot, "l", -4.5, 0, -1.5);
     addRobotHead(robot, 0, 3, 0);
-    addRobotWaist(robot, 0, -4.5, 1.5)
-    addWheel(robot, 3.25, -5, 0);
-    addWheel(robot, -3.25, -5, 0);
     addRobotLeg(robot, "r", 1.5, -11, -0.5);
     addRobotLeg(robot, "l", -1.5, -11, -0.5);
 
