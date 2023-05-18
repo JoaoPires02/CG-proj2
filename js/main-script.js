@@ -3,11 +3,9 @@
 //////////////////////
 var scene, renderer;
 
-var geometry, mesh;
-
 var currentCamera = 0;
 
-var trailer;
+var trailer, robot;
 
 const moveTrailer = [false, false, false, false]
 
@@ -26,7 +24,8 @@ function createScene() {
     scene.add(new THREE.AxisHelper(10));
     scene.background = new THREE.Color("rgb(200, 200, 200)");
 
-    createTrailer(0, 0, 0);
+    createTrailer(-10, -10.5, 0);
+    createRobot(10, 0 ,0);
 
 }
 
@@ -62,8 +61,8 @@ function createAllCameras() {
 function addTrailerBody(obj, x, y, z) {
     'use strict';
 
-    geometry = new THREE.BoxGeometry(8, 10, 21);
-    mesh = new THREE.Mesh(geometry, materials[0]);
+    var geometry = new THREE.BoxGeometry(8, 10, 21);
+    var mesh = new THREE.Mesh(geometry, materials[0]);
     mesh.position.set(x, y, z);
     obj.add(mesh);
 }
@@ -71,8 +70,8 @@ function addTrailerBody(obj, x, y, z) {
 function addTrailerBase(obj, x, y, z) {
     'use strict'
 
-    geometry = new THREE.BoxGeometry(5, 1, 16);
-    mesh = new THREE.Mesh(geometry, materials[0]);
+    var geometry = new THREE.BoxGeometry(5, 1, 16);
+    var mesh = new THREE.Mesh(geometry, materials[0]);
     mesh.position.set(x, y, z);
     obj.add(mesh);
 }
@@ -80,8 +79,8 @@ function addTrailerBase(obj, x, y, z) {
 function addWheel(obj, x, y ,z) {
     'use strict'
 
-    geometry = new THREE.CylinderGeometry(1, 1, 1.5, 8);
-    mesh = new THREE.Mesh(geometry, materials[0]);
+    var geometry = new THREE.CylinderGeometry(1, 1, 1.5, 8);
+    var mesh = new THREE.Mesh(geometry, materials[0]);
     mesh.position.set(x, y, z);
     mesh.rotation.z = Math.PI / 2;
     obj.add(mesh);
@@ -106,6 +105,159 @@ function createTrailer(x, y, z) {
     trailer.position.x = x;
     trailer.position.y = y;
     trailer.position.z = z;
+}
+
+
+function addRobotChest(obj, x, y ,z) {
+    'use strict';
+
+    var geometry = new THREE.BoxGeometry(8, 4, 4);
+    var mesh = new THREE.Mesh(geometry, materials[0]);
+    mesh.position.set(x, y, z);
+    obj.add(mesh);
+}
+
+function addRobotAbdomen(obj, x, y, z) {
+    'use strict';
+
+    var geometry = new THREE.BoxGeometry(5, 2, 4);
+    var mesh = new THREE.Mesh(geometry, materials[0]);
+    mesh.position.set(x, y, z);
+    obj.add(mesh);
+}
+
+function addRobotArm(obj, side, x, y, z) {
+    'use strict';
+
+    var geometry = new THREE.BoxGeometry(1, 4, 1);
+    var mesh = new THREE.Mesh(geometry, materials[0]);
+    mesh.position.set(x, y, z);
+    obj.add(mesh);
+    addRobotForeArm(mesh, 0, -2.5, 1.5);
+    if (side == "l") addRobotExhaust(mesh, -0.75, 1, 0);
+    if (side == "r") addRobotExhaust(mesh, 0.75, 1, 0);
+}
+
+function addRobotForeArm(obj, x, y, z) {
+    'use strict';
+
+    var geometry = new THREE.BoxGeometry(1, 1, 4);
+    var mesh = new THREE.Mesh(geometry, materials[0]);
+    mesh.position.set(x, y, z);
+    obj.add(mesh);
+}
+
+function addRobotExhaust(obj, x, y, z) {
+    'use strict'
+
+    var geometry = new THREE.CylinderGeometry(0.25, 0.25, 4, 8);
+    var mesh = new THREE.Mesh(geometry, materials[0]);
+    mesh.position.set(x, y, z);
+    obj.add(mesh);
+}
+
+function addRobotHead(obj, x, y, z) {
+    'use strict';
+
+    var geometry = new THREE.BoxGeometry(2, 2, 2);
+    var mesh = new THREE.Mesh(geometry, materials[0]);
+    mesh.position.set(x, y, z);
+    obj.add(mesh);
+    addRobotEye(mesh, -0.5, 0.5, 1.05);
+    addRobotAntenna(mesh, -1.25, 0.75, 0);
+    addRobotEye(mesh, 0.5, 0.5, 1.05);
+    addRobotAntenna(mesh, 1.25, 0.75, 0);
+}
+
+function addRobotEye(obj, x, y, z) {
+    'use strict';
+
+    var geometry = new THREE.CylinderGeometry(0.25, 0.25, 0.1, 8);
+    var mesh = new THREE.Mesh(geometry, materials[0]);
+    mesh.position.set(x, y, z);
+    mesh.rotation.x = Math.PI / 2;
+    obj.add(mesh);
+}
+
+function addRobotAntenna(obj, x, y, z) {
+    'use strict'
+
+    var geometry = new THREE.CylinderGeometry(0.25, 0.25, 1.5, 8);
+    var mesh = new THREE.Mesh(geometry, materials[0]);
+    mesh.position.set(x, y, z);
+    obj.add(mesh);
+}
+
+function addRobotWaist(obj, x, y, z) {
+    'use strict';
+
+    var geometry = new THREE.BoxGeometry(8, 1, 1);
+    var mesh = new THREE.Mesh(geometry, materials[0]);
+    mesh.position.set(x, y, z);
+    obj.add(mesh);
+}
+
+function addRobotLeg(obj, side, x, y, z) {
+    'use strict';
+
+    var geometry = new THREE.BoxGeometry(2, 8, 2);
+    var mesh = new THREE.Mesh(geometry, materials[0]);
+    mesh.position.set(x, y, z);
+    obj.add(mesh);
+    addRobotThigh(mesh, 0, 5, 0);
+    if (side == "l") {
+        addRobotFoot(mesh, -0.75, -4.75, 0.75);
+        addWheel(mesh, -1.75, -1, 0.5);
+        addWheel(mesh, -1.75, -3, 0.5);
+    }
+    if (side == "r") {
+        addRobotFoot(mesh, 0.75, -4.75, 0.75);
+        addWheel(mesh, 1.75, -1, 0.5);
+        addWheel(mesh, 1.75, -3, 0.5);
+    }
+}
+
+function addRobotThigh(obj, x, y, z) {
+    'use strict';
+
+    var geometry = new THREE.BoxGeometry(1, 2, 1);
+    var mesh = new THREE.Mesh(geometry, materials[0]);
+    mesh.position.set(x, y, z);
+    obj.add(mesh);
+}
+
+function addRobotFoot(obj, x, y, z) {
+    'use strict';
+
+    var geometry = new THREE.BoxGeometry(3.5, 1.5, 3.5);
+    var mesh = new THREE.Mesh(geometry, materials[0]);
+    mesh.position.set(x, y, z);
+    obj.add(mesh);
+}
+
+
+function createRobot(x, y ,z) {
+    'use strict'
+
+    robot = new THREE.Object3D();
+
+    addRobotChest(robot, 0, 0, 0);
+    addRobotAbdomen(robot, 0, -3, 0)
+    addRobotArm(robot, "r", 4.5, 0, -1.5);
+    addRobotArm(robot, "l", -4.5, 0, -1.5);
+    addRobotHead(robot, 0, 3, 0);
+    addRobotWaist(robot, 0, -4.5, 1.5)
+    addWheel(robot, 3.25, -5, 0);
+    addWheel(robot, -3.25, -5, 0);
+    addRobotLeg(robot, "r", 1.5, -11, -0.5);
+    addRobotLeg(robot, "l", -1.5, -11, -0.5);
+
+
+    scene.add(robot);
+
+    robot.position.x = x;
+    robot.position.y = y;
+    robot.position.z = z;
 }
 
 //////////////////////
