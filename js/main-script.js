@@ -3,10 +3,17 @@
 //////////////////////
 var scene, renderer;
 
-var geometry, material, mesh;
+var geometry, mesh;
+
+var currentCamera = 0;
+
+var trailer;
+
+const moveTrailer = [false, false, false, false]
 
 const cameras = [];
 
+const materials = [];
 
 /////////////////////
 /* CREATE SCENE(S) */
@@ -56,7 +63,7 @@ function addTrailerBody(obj, x, y, z) {
     'use strict';
 
     geometry = new THREE.BoxGeometry(8, 10, 21);
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials[0]);
     mesh.position.set(x, y, z);
     obj.add(mesh);
 }
@@ -65,7 +72,7 @@ function addTrailerBase(obj, x, y, z) {
     'use strict'
 
     geometry = new THREE.BoxGeometry(5, 1, 16);
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials[0]);
     mesh.position.set(x, y, z);
     obj.add(mesh);
 }
@@ -73,8 +80,8 @@ function addTrailerBase(obj, x, y, z) {
 function addWheel(obj, x, y ,z) {
     'use strict'
 
-    geometry = new THREE.CylinderGeometry(1, 1, 1.5, 8, 1, false);
-    mesh = new THREE.Mesh(geometry, material);
+    geometry = new THREE.CylinderGeometry(1, 1, 1.5, 8);
+    mesh = new THREE.Mesh(geometry, materials[0]);
     mesh.position.set(x, y, z);
     mesh.rotation.z = Math.PI / 2;
     obj.add(mesh);
@@ -83,9 +90,9 @@ function addWheel(obj, x, y ,z) {
 function createTrailer(x, y, z) {
     'use strict';
 
-    var trailer = new THREE.Object3D();
+    trailer = new THREE.Object3D();
 
-    material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
+    materials[0] = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
 
     addTrailerBody(trailer, 0, 0, 0)
     addTrailerBase(trailer, 0, -5.5, -1.5);
@@ -147,9 +154,10 @@ function init() {
     createScene();
     createAllCameras();
 
-    render(1);
+    render(currentCamera);
 
     window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
     window.addEventListener("resize", onResize);
 }
 
@@ -159,6 +167,22 @@ function init() {
 function animate() {
     'use strict';
 
+    if(moveTrailer[0]){
+        trailer.position.x -= 0.2;
+    }
+    if(moveTrailer[1]){
+        trailer.position.z -= 0.2;
+    }
+    if(moveTrailer[2]){
+        trailer.position.x += 0.2;
+    }
+    if(moveTrailer[3]){
+        trailer.position.z += 0.2;
+    }
+
+    render(currentCamera);
+
+    requestAnimationFrame(animate);
 }
 
 ////////////////////////////
@@ -176,22 +200,40 @@ function onKeyDown(e) {
     'use strict';
 
     switch (e.keyCode) {
+        case 37: //LEFT ARROW
+            moveTrailer[0] = true;
+            break;
+        case 38: //UP ARROW
+            moveTrailer[1] = true;
+            break;
+        case 39: //RIGHT ARROW
+            moveTrailer[2] = true;
+            break;
+        case 40: //DOWN ARROW
+            moveTrailer[3] = true;
+            break;
         case 49: //1
-            render(0);
+            currentCamera = 0;
             break;
         case 50: //2
-            render(1);
+            currentCamera = 1;
             break;
         case 51: //3
-            render(2);
+            currentCamera = 2;
             break;
         case 52: //4
-            render(3);
+            currentCamera = 3;
             break;
         case 53: //5
-            render(4);
+            currentCamera = 4;
+            break;
+        case 54: //6
+            for (var i = 0; i < materials.length; i++) {
+                materials[i].wireframe = !materials[i].wireframe;
+            }
             break;
     }
+    render(currentCamera);
 
 }
 
@@ -201,4 +243,18 @@ function onKeyDown(e) {
 function onKeyUp(e){
     'use strict';
 
+    switch (e.keyCode) {
+        case 37: //LEFT ARROW
+            moveTrailer[0] = false;
+            break;
+        case 38: //UP ARROW
+            moveTrailer[1] = false;
+            break;
+        case 39: //RIGHT ARROW
+            moveTrailer[2] = false;
+            break;
+        case 40: //DOWN ARROW
+            moveTrailer[3] = false;
+            break;
+    }
 }
