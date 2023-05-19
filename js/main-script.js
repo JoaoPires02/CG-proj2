@@ -5,9 +5,9 @@ var scene, renderer;
 
 var currentCamera = 0;
 
-var trailer, robot;
+var trailer, robot, core, head, rArm, lArm, rLeg, lLeg, rFoot, lFoot;
 
-const moveTrailer = [false, false, false, false]
+const moveTrailer = [false, false, false, false];
 
 const cameras = [];
 
@@ -114,9 +114,9 @@ function addRobotCore(obj, x, y ,z) {
     'use strict';
 
     var geometry = new THREE.BoxGeometry(8, 4, 4);
-    var mesh = new THREE.Mesh(geometry, materials[4]);
-    mesh.position.set(x, y, z);
-    obj.add(mesh);
+    core = new THREE.Mesh(geometry, materials[4]);
+    core.position.set(x, y, z);
+    obj.add(core);
     addRobotWaist(robot, 0, -4.5, 1.5)
     addWheel(robot, 3.25, -5, 0);
     addWheel(robot, -3.25, -5, 0);
@@ -136,12 +136,21 @@ function addRobotArm(obj, side, x, y, z) {
     'use strict';
 
     var geometry = new THREE.BoxGeometry(1, 4, 1);
-    var mesh = new THREE.Mesh(geometry, materials[4]);
-    mesh.position.set(x, y, z);
-    obj.add(mesh);
-    addRobotForeArm(mesh, 0, -2.5, 1.5);
-    if (side == "l") addRobotExhaust(mesh, -0.75, 1, 0);
-    if (side == "r") addRobotExhaust(mesh, 0.75, 1, 0);
+    if (side == "l") {
+        lArm = new THREE.Mesh(geometry, materials[4]);
+        lArm.position.set(x, y, z);
+        obj.add(lArm);
+        addRobotForeArm(lArm, 0, -2.5, 1.5);
+        addRobotExhaust(lArm, -0.75, 1, 0);
+    }
+
+    if (side == "r") {
+        rArm = new THREE.Mesh(geometry, materials[4]);
+        rArm.position.set(x, y, z);
+        obj.add(rArm);
+        addRobotForeArm(rArm, 0, -2.5, 1.5);
+        if (side == "r") addRobotExhaust(rArm, 0.75, 1, 0);
+    }
 }
 
 function addRobotForeArm(obj, x, y, z) {
@@ -166,13 +175,13 @@ function addRobotHead(obj, x, y, z) {
     'use strict';
 
     var geometry = new THREE.BoxGeometry(2, 2, 2);
-    var mesh = new THREE.Mesh(geometry, materials[1]);
-    mesh.position.set(x, y, z);
-    obj.add(mesh);
-    addRobotEye(mesh, -0.5, 0.5, 1.05);
-    addRobotEye(mesh, 0.5, 0.5, 1.05);
-    addRobotAntenna(mesh, -1.25, 0.75, 0);
-    addRobotAntenna(mesh, 1.25, 0.75, 0);
+    head = new THREE.Mesh(geometry, materials[1]);
+    head.position.set(x, y, z);
+    obj.add(head);
+    addRobotEye(head, -0.5, 0.5, 1.05);
+    addRobotEye(head, 0.5, 0.5, 1.05);
+    addRobotAntenna(head, -1.25, 0.75, 0);
+    addRobotAntenna(head, 1.25, 0.75, 0);
 }
 
 function addRobotEye(obj, x, y, z) {
@@ -207,19 +216,23 @@ function addRobotLeg(obj, side, x, y, z) {
     'use strict';
 
     var geometry = new THREE.BoxGeometry(2, 8, 2);
-    var mesh = new THREE.Mesh(geometry, materials[1]);
-    mesh.position.set(x, y, z);
-    obj.add(mesh);
-    addRobotThigh(mesh, 0, 5, 0);
     if (side == "l") {
-        addRobotFoot(mesh, -0.75, -4.75, 0.75);
-        addWheel(mesh, -1.75, -1, 0.5);
-        addWheel(mesh, -1.75, -3, 0.5);
+        lLeg = new THREE.Mesh(geometry, materials[1]);
+        lLeg.position.set(x, y, z);
+        obj.add(lLeg);
+        addRobotThigh(lLeg, 0, 5, 0);
+        addRobotFoot(lLeg, "l", -0.75, -4.75, 0.75);
+        addWheel(lLeg, -1.75, -1, 0.5);
+        addWheel(lLeg, -1.75, -3, 0.5);
     }
     if (side == "r") {
-        addRobotFoot(mesh, 0.75, -4.75, 0.75);
-        addWheel(mesh, 1.75, -1, 0.5);
-        addWheel(mesh, 1.75, -3, 0.5);
+        rLeg = new THREE.Mesh(geometry, materials[1]);
+        rLeg.position.set(x, y, z);
+        obj.add(rLeg);
+        addRobotThigh(rLeg, 0, 5, 0);
+        addRobotFoot(rLeg, "r", 0.75, -4.75, 0.75);
+        addWheel(rLeg, 1.75, -1, 0.5);
+        addWheel(rLeg, 1.75, -3, 0.5);
     }
 }
 
@@ -232,13 +245,21 @@ function addRobotThigh(obj, x, y, z) {
     obj.add(mesh);
 }
 
-function addRobotFoot(obj, x, y, z) {
+function addRobotFoot(obj, side, x, y, z) {
     'use strict';
 
     var geometry = new THREE.BoxGeometry(3.5, 1.5, 3.5);
-    var mesh = new THREE.Mesh(geometry, materials[1]);
-    mesh.position.set(x, y, z);
-    obj.add(mesh);
+    if (side == "l") {
+        lFoot = new THREE.Mesh(geometry, materials[1]);
+        lFoot.position.set(x, y, z);
+        obj.add(lFoot);
+    }
+
+    if (side == "r") {
+        rFoot = new THREE.Mesh(geometry, materials[1]);
+        rFoot.position.set(x, y, z);
+        obj.add(rFoot);
+    }
 }
 
 
