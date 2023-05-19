@@ -25,7 +25,7 @@ function createScene() {
     scene.background = new THREE.Color("rgb(200, 200, 200)");
 
     createTrailer(-10, -10.5, 0);
-    createRobot(10, 0 ,0);
+    createRobot(0, 0 ,0);
 
 }
 
@@ -71,7 +71,7 @@ function addTrailerBase(obj, x, y, z) {
     'use strict'
 
     var geometry = new THREE.BoxGeometry(5, 1, 16);
-    var mesh = new THREE.Mesh(geometry, materials[0]);
+    var mesh = new THREE.Mesh(geometry, materials[1]);
     mesh.position.set(x, y, z);
     obj.add(mesh);
 }
@@ -80,7 +80,7 @@ function addWheel(obj, x, y ,z) {
     'use strict'
 
     var geometry = new THREE.CylinderGeometry(1, 1, 1.5, 8);
-    var mesh = new THREE.Mesh(geometry, materials[0]);
+    var mesh = new THREE.Mesh(geometry, materials[2]);
     mesh.position.set(x, y, z);
     mesh.rotation.z = Math.PI / 2;
     obj.add(mesh);
@@ -91,7 +91,9 @@ function createTrailer(x, y, z) {
 
     trailer = new THREE.Object3D();
 
-    materials[0] = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
+    materials[0] = new THREE.MeshBasicMaterial({ color: 0xaaaaaa, wireframe: true }); //material for trailer body
+    materials[1] = new THREE.MeshBasicMaterial({ color: 0x4151ff, wireframe: true }); //material for trailer base
+    materials[2] = new THREE.MeshBasicMaterial({ color: 0x383838, wireframe: true }); //material for wheel
 
     addTrailerBody(trailer, 0, 0, 0)
     addTrailerBase(trailer, 0, -5.5, -1.5);
@@ -112,7 +114,7 @@ function addRobotCore(obj, x, y ,z) {
     'use strict';
 
     var geometry = new THREE.BoxGeometry(8, 4, 4);
-    var mesh = new THREE.Mesh(geometry, materials[0]);
+    var mesh = new THREE.Mesh(geometry, materials[4]);
     mesh.position.set(x, y, z);
     obj.add(mesh);
     addRobotWaist(robot, 0, -4.5, 1.5)
@@ -125,7 +127,7 @@ function addRobotAbdomen(obj, x, y, z) {
     'use strict';
 
     var geometry = new THREE.BoxGeometry(5, 2, 4);
-    var mesh = new THREE.Mesh(geometry, materials[0]);
+    var mesh = new THREE.Mesh(geometry, materials[4]);
     mesh.position.set(x, y, z);
     obj.add(mesh);
 }
@@ -134,7 +136,7 @@ function addRobotArm(obj, side, x, y, z) {
     'use strict';
 
     var geometry = new THREE.BoxGeometry(1, 4, 1);
-    var mesh = new THREE.Mesh(geometry, materials[0]);
+    var mesh = new THREE.Mesh(geometry, materials[4]);
     mesh.position.set(x, y, z);
     obj.add(mesh);
     addRobotForeArm(mesh, 0, -2.5, 1.5);
@@ -146,7 +148,7 @@ function addRobotForeArm(obj, x, y, z) {
     'use strict';
 
     var geometry = new THREE.BoxGeometry(1, 1, 4);
-    var mesh = new THREE.Mesh(geometry, materials[0]);
+    var mesh = new THREE.Mesh(geometry, materials[4]);
     mesh.position.set(x, y, z);
     obj.add(mesh);
 }
@@ -164,7 +166,7 @@ function addRobotHead(obj, x, y, z) {
     'use strict';
 
     var geometry = new THREE.BoxGeometry(2, 2, 2);
-    var mesh = new THREE.Mesh(geometry, materials[0]);
+    var mesh = new THREE.Mesh(geometry, materials[1]);
     mesh.position.set(x, y, z);
     obj.add(mesh);
     addRobotEye(mesh, -0.5, 0.5, 1.05);
@@ -177,7 +179,7 @@ function addRobotEye(obj, x, y, z) {
     'use strict';
 
     var geometry = new THREE.CylinderGeometry(0.25, 0.25, 0.1, 8);
-    var mesh = new THREE.Mesh(geometry, materials[0]);
+    var mesh = new THREE.Mesh(geometry, materials[3]);
     mesh.position.set(x, y, z);
     mesh.rotation.x = Math.PI / 2;
     obj.add(mesh);
@@ -187,7 +189,7 @@ function addRobotAntenna(obj, x, y, z) {
     'use strict'
 
     var geometry = new THREE.CylinderGeometry(0.25, 0.25, 1.5, 8);
-    var mesh = new THREE.Mesh(geometry, materials[0]);
+    var mesh = new THREE.Mesh(geometry, materials[1]);
     mesh.position.set(x, y, z);
     obj.add(mesh);
 }
@@ -205,7 +207,7 @@ function addRobotLeg(obj, side, x, y, z) {
     'use strict';
 
     var geometry = new THREE.BoxGeometry(2, 8, 2);
-    var mesh = new THREE.Mesh(geometry, materials[0]);
+    var mesh = new THREE.Mesh(geometry, materials[1]);
     mesh.position.set(x, y, z);
     obj.add(mesh);
     addRobotThigh(mesh, 0, 5, 0);
@@ -234,7 +236,7 @@ function addRobotFoot(obj, x, y, z) {
     'use strict';
 
     var geometry = new THREE.BoxGeometry(3.5, 1.5, 3.5);
-    var mesh = new THREE.Mesh(geometry, materials[0]);
+    var mesh = new THREE.Mesh(geometry, materials[1]);
     mesh.position.set(x, y, z);
     obj.add(mesh);
 }
@@ -244,6 +246,10 @@ function createRobot(x, y ,z) {
     'use strict'
 
     robot = new THREE.Object3D();
+
+    materials[3] = new THREE.MeshBasicMaterial({ color: 0xfaff42, wireframe: true }); //material for eyes
+    materials[4] = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true }); //material for core, abdomen, arms and forearms
+
 
     addRobotCore(robot, 0, 0, 0);
     addRobotArm(robot, "r", 4.5, 0, -1.5);
