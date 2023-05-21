@@ -9,9 +9,19 @@ var trailer, robot, core, head, rArm, lArm, rLeg, lLeg, rFoot, lFoot;
 
 const moveTrailer = [false, false, false, false];
 
+const moveArms = [false, false];
+
+const moveHead = [false, false];
+
+const moveLegs = [false, false];
+
+const moveFeet = [false, false];
+
 const cameras = [];
 
 const materials = [];
+
+const pivot = [];
 
 /////////////////////
 /* CREATE SCENE(S) */
@@ -24,7 +34,7 @@ function createScene() {
     scene.add(new THREE.AxisHelper(10));
     scene.background = new THREE.Color("rgb(200, 200, 200)");
 
-    createTrailer(-10, -10.5, 0);
+    createTrailer(0, 1.5, -15);
     createRobot(0, 0 ,0);
 
 }
@@ -136,20 +146,20 @@ function addRobotArm(obj, side, x, y, z) {
     'use strict';
 
     var geometry = new THREE.BoxGeometry(1, 4, 1);
-    if (side == "l") {
-        lArm = new THREE.Mesh(geometry, materials[4]);
-        lArm.position.set(x, y, z);
-        obj.add(lArm);
-        addRobotForeArm(lArm, 0, -2.5, 1.5);
-        addRobotExhaust(lArm, -0.75, 1, 0);
-    }
-
     if (side == "r") {
         rArm = new THREE.Mesh(geometry, materials[4]);
         rArm.position.set(x, y, z);
         obj.add(rArm);
         addRobotForeArm(rArm, 0, -2.5, 1.5);
-        if (side == "r") addRobotExhaust(rArm, 0.75, 1, 0);
+        addRobotExhaust(rArm, -0.75, 1, 0);
+    }
+
+    if (side == "l") {
+        lArm = new THREE.Mesh(geometry, materials[4]);
+        lArm.position.set(x, y, z);
+        obj.add(lArm);
+        addRobotForeArm(lArm, 0, -2.5, 1.5);
+        if (side == "l") addRobotExhaust(lArm, 0.75, 1, 0);
     }
 }
 
@@ -182,6 +192,12 @@ function addRobotHead(obj, x, y, z) {
     addRobotEye(head, 0.5, 0.5, 1.05);
     addRobotAntenna(head, -1.25, 0.75, 0);
     addRobotAntenna(head, 1.25, 0.75, 0);
+
+    pivot[0] = new THREE.Group();
+    pivot[0].add(head);
+
+    pivot[0].position.set(0, 0, 0);
+    head.position.set(0, 3, 0);
 }
 
 function addRobotEye(obj, x, y, z) {
@@ -212,28 +228,51 @@ function addRobotWaist(obj, x, y, z) {
     obj.add(mesh);
 }
 
+function addRobotLegs(obj){
+    pivot[1] = new THREE.Group();
+    pivot[2] = new THREE.Group();
+
+    addRobotLeg(obj, "l", 1.5, -11, 0);
+    addRobotLeg(obj, "r", -1.5, -11, 0);
+
+    pivot[1].position.set(0, -4.5, 0);
+    lLeg.position.set(1.5, -5.5, 0);
+    rLeg.position.set(-1.5, -5.5, 0);
+
+    /*
+    pivot[2].position.set(0, -14, -1);
+    lFoot.position.set(2.25, 0.75, 1.75);
+    rFoot.position.set(-2.25, 0.75, 1.75);
+    */
+}
+
 function addRobotLeg(obj, side, x, y, z) {
     'use strict';
 
     var geometry = new THREE.BoxGeometry(2, 8, 2);
-    if (side == "l") {
-        lLeg = new THREE.Mesh(geometry, materials[1]);
-        lLeg.position.set(x, y, z);
-        obj.add(lLeg);
-        addRobotThigh(lLeg, 0, 5, 0);
-        addRobotFoot(lLeg, "l", -0.75, -4.75, 0.75);
-        addWheel(lLeg, -1.75, -1, 0.5);
-        addWheel(lLeg, -1.75, -3, 0.5);
-    }
     if (side == "r") {
         rLeg = new THREE.Mesh(geometry, materials[1]);
         rLeg.position.set(x, y, z);
         obj.add(rLeg);
         addRobotThigh(rLeg, 0, 5, 0);
-        addRobotFoot(rLeg, "r", 0.75, -4.75, 0.75);
-        addWheel(rLeg, 1.75, -1, 0.5);
-        addWheel(rLeg, 1.75, -3, 0.5);
+        addRobotFoot(rLeg, "r", -0.75, -4.75, 0.75);
+        addWheel(rLeg, -1.75, -1, 0.5);
+        addWheel(rLeg, -1.75, -3, 0.5);
+
+        pivot[1].add(rLeg);
     }
+    if (side == "l") {
+        lLeg = new THREE.Mesh(geometry, materials[1]);
+        lLeg.position.set(x, y, z);
+        obj.add(lLeg);
+        addRobotThigh(lLeg, 0, 5, 0);
+        addRobotFoot(lLeg, "l", 0.75, -4.75, 0.75);
+        addWheel(lLeg, 1.75, -1, 0.5);
+        addWheel(lLeg, 1.75, -3, 0.5);
+
+        pivot[1].add(lLeg);
+    }
+
 }
 
 function addRobotThigh(obj, x, y, z) {
@@ -249,16 +288,20 @@ function addRobotFoot(obj, side, x, y, z) {
     'use strict';
 
     var geometry = new THREE.BoxGeometry(3.5, 1.5, 3.5);
-    if (side == "l") {
-        lFoot = new THREE.Mesh(geometry, materials[1]);
-        lFoot.position.set(x, y, z);
-        obj.add(lFoot);
-    }
-
     if (side == "r") {
         rFoot = new THREE.Mesh(geometry, materials[1]);
         rFoot.position.set(x, y, z);
         obj.add(rFoot);
+
+        //pivot[2].add(rFoot);
+    }
+
+    if (side == "l") {
+        lFoot = new THREE.Mesh(geometry, materials[1]);
+        lFoot.position.set(x, y, z);
+        obj.add(lFoot);
+
+        //pivot[2].add(lFoot);
     }
 }
 
@@ -273,14 +316,16 @@ function createRobot(x, y ,z) {
 
 
     addRobotCore(robot, 0, 0, 0);
-    addRobotArm(robot, "r", 4.5, 0, -1.5);
-    addRobotArm(robot, "l", -4.5, 0, -1.5);
+    addRobotArm(robot, "l", 4.5, 0, -1.5);
+    addRobotArm(robot, "r", -4.5, 0, -1.5);
     addRobotHead(robot, 0, 3, 0);
-    addRobotLeg(robot, "r", 1.5, -11, -0.5);
-    addRobotLeg(robot, "l", -1.5, -11, -0.5);
-
+    addRobotLegs(robot);
 
     scene.add(robot);
+
+    scene.add(pivot[0]);
+    scene.add(pivot[1]);
+    scene.add(pivot[2]);
 
     robot.position.x = x;
     robot.position.y = y;
@@ -358,6 +403,54 @@ function animate() {
     if(moveTrailer[3]){
         trailer.position.z += 0.2;
     }
+    if(moveArms[0]){
+        if (lArm.position.x < 4.5){
+            lArm.position.x += 0.01;
+            rArm.position.x -= 0.01;
+        }
+    }
+
+    if(moveArms[1]){
+        if (lArm.position.x > 3.5){
+            rArm.position.x += 0.01;
+            lArm.position.x -= 0.01;
+        }
+    }
+
+    if(moveHead[0]){
+        if (pivot[0].rotation.x <= 0){
+            pivot[0].rotation.x += Math.PI / 64;
+        }
+    }
+
+    if(moveHead[1]){
+        if (pivot[0].rotation.x > -Math.PI / 2){
+            pivot[0].rotation.x -= Math.PI / 64;
+        }
+    }
+
+    if(moveLegs[0]){
+        if (pivot[1].rotation.x > 0){
+            pivot[1].rotation.x -= Math.PI / 64;
+        }
+    }
+
+    if(moveLegs[1]){
+        if (pivot[1].rotation.x < Math.PI / 2){
+            pivot[1].rotation.x += Math.PI / 64;
+        }
+    }
+    if(moveFeet[0]){
+        if (pivot[2].rotation.x > 0){
+            pivot[2].rotation.x -= Math.PI / 64;
+        }
+    }
+
+    if(moveFeet[1]){
+        if (pivot[2].rotation.x < Math.PI / 2){
+            pivot[2].rotation.x += Math.PI / 64;
+        }
+    }
 
     render(currentCamera);
 
@@ -411,6 +504,38 @@ function onKeyDown(e) {
                 materials[i].wireframe = !materials[i].wireframe;
             }
             break;
+        case 68: //D(d)
+        case 100:
+            moveArms[1] = true;
+            break;
+        case 69: //E(e)
+        case 101:
+            moveArms[0] = true;
+            break;
+        case 70: //F(f)
+        case 102:
+            moveHead[1] = true;
+            break;
+        case 82: //R(r)
+        case 114:
+            moveHead[0] = true;
+            break;
+        case 83: //S(s)
+        case 115:
+            moveLegs[1] = true;
+            break;
+        case 87: //W(w)
+        case 119:
+            moveLegs[0] = true;
+            break;
+        case 81: //Q(q)
+        case 113:
+            moveFeet[1] = true;
+            break;
+        case 65: //A(a)
+        case 97:
+            moveFeet[0] = true;
+            break;
     }
     render(currentCamera);
 
@@ -434,6 +559,38 @@ function onKeyUp(e){
             break;
         case 40: //DOWN ARROW
             moveTrailer[3] = false;
+            break;
+        case 68: //D(d)
+        case 100:
+            moveArms[1] = false;
+            break;
+        case 69: //E(e)
+        case 101:
+            moveArms[0] = false;
+            break;
+        case 70: //F(f)
+        case 102:
+            moveHead[1] = false;
+            break;
+        case 82: //R(r)
+        case 114:
+            moveHead[0] = false;
+            break;
+        case 83: //S(s)
+        case 115:
+            moveLegs[1] = false;
+            break;
+        case 87: //W(w)
+        case 119:
+            moveLegs[0] = false;
+            break;
+        case 81: //Q(q)
+        case 113:
+            moveFeet[1] = false;
+            break;
+        case 65: //A(a)
+        case 97:
+            moveFeet[0] = false;
             break;
     }
 }
