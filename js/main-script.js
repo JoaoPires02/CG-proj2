@@ -107,10 +107,10 @@ function createTrailer(x, y, z) {
 
     addTrailerBody(trailer, 0, 0, 0)
     addTrailerBase(trailer, 0, -5.5, -1.5);
-    addWheel(trailer, 3.25, -6, -6.5);
-    addWheel(trailer, 3.25, -6, -8.5);
-    addWheel(trailer, -3.25, -6, -6.5);
-    addWheel(trailer, -3.25, -6, -8.5);
+    addWheel(trailer, 3.25, -6.5, -6.5);
+    addWheel(trailer, 3.25, -6.5, -8.5);
+    addWheel(trailer, -3.25, -6.5, -6.5);
+    addWheel(trailer, -3.25, -6.5, -8.5);
 
     scene.add(trailer);
 
@@ -184,20 +184,22 @@ function addRobotExhaust(obj, x, y, z) {
 function addRobotHead(obj, x, y, z) {
     'use strict';
 
+    pivot[0] = new THREE.Group();
+
+    obj.add(pivot[0]);
+
     var geometry = new THREE.BoxGeometry(2, 2, 2);
     head = new THREE.Mesh(geometry, materials[1]);
     head.position.set(x, y, z);
-    obj.add(head);
+    pivot[0].add(head);
+
     addRobotEye(head, -0.5, 0.5, 1.05);
     addRobotEye(head, 0.5, 0.5, 1.05);
     addRobotAntenna(head, -1.25, 0.75, 0);
     addRobotAntenna(head, 1.25, 0.75, 0);
 
-    pivot[0] = new THREE.Group();
-    pivot[0].add(head);
-
-    pivot[0].position.set(0, 0, 0);
-    head.position.set(0, 3, 0);
+    pivot[0].position.set(0, 1, 0);
+    head.position.set(0, 2, 0);
 }
 
 function addRobotEye(obj, x, y, z) {
@@ -232,18 +234,20 @@ function addRobotLegs(obj){
     pivot[1] = new THREE.Group();
     pivot[2] = new THREE.Group();
 
-    addRobotLeg(obj, "l", 1.5, -11, 0);
-    addRobotLeg(obj, "r", -1.5, -11, 0);
+    obj.add(pivot[1]);
+
+    addRobotLeg(pivot[1], "l", 1.5, -11, 0);
+    addRobotLeg(pivot[1], "r", -1.5, -11, 0);
 
     pivot[1].position.set(0, -4.5, 0);
     lLeg.position.set(1.5, -5.5, 0);
     rLeg.position.set(-1.5, -5.5, 0);
 
-    /*
-    pivot[2].position.set(0, -14, -1);
-    lFoot.position.set(2.25, 0.75, 1.75);
-    rFoot.position.set(-2.25, 0.75, 1.75);
-    */
+    
+    pivot[2].position.set(0, -4.5, -1);
+    lFoot.position.set(3.75, 0.75, 1.75);
+    rFoot.position.set(-0.75, 0.75, 1.75);
+    
 }
 
 function addRobotLeg(obj, side, x, y, z) {
@@ -254,23 +258,23 @@ function addRobotLeg(obj, side, x, y, z) {
         rLeg = new THREE.Mesh(geometry, materials[1]);
         rLeg.position.set(x, y, z);
         obj.add(rLeg);
+        rLeg.add(pivot[2]);
         addRobotThigh(rLeg, 0, 5, 0);
-        addRobotFoot(rLeg, "r", -0.75, -4.75, 0.75);
+        addRobotFoot(pivot[2], "r", -0.75, -4.75, 0.75);
         addWheel(rLeg, -1.75, -1, 0.5);
         addWheel(rLeg, -1.75, -3, 0.5);
 
-        pivot[1].add(rLeg);
     }
     if (side == "l") {
         lLeg = new THREE.Mesh(geometry, materials[1]);
         lLeg.position.set(x, y, z);
         obj.add(lLeg);
+        lLeg.add(pivot[2]);
         addRobotThigh(lLeg, 0, 5, 0);
-        addRobotFoot(lLeg, "l", 0.75, -4.75, 0.75);
+        addRobotFoot(pivot[2], "l", 0.75, -4.75, 0.75);
         addWheel(lLeg, 1.75, -1, 0.5);
         addWheel(lLeg, 1.75, -3, 0.5);
 
-        pivot[1].add(lLeg);
     }
 
 }
@@ -293,7 +297,7 @@ function addRobotFoot(obj, side, x, y, z) {
         rFoot.position.set(x, y, z);
         obj.add(rFoot);
 
-        //pivot[2].add(rFoot);
+        pivot[2].add(rFoot);
     }
 
     if (side == "l") {
@@ -301,7 +305,7 @@ function addRobotFoot(obj, side, x, y, z) {
         lFoot.position.set(x, y, z);
         obj.add(lFoot);
 
-        //pivot[2].add(lFoot);
+        pivot[2].add(lFoot);
     }
 }
 
@@ -322,10 +326,6 @@ function createRobot(x, y ,z) {
     addRobotLegs(robot);
 
     scene.add(robot);
-
-    scene.add(pivot[0]);
-    scene.add(pivot[1]);
-    scene.add(pivot[2]);
 
     robot.position.x = x;
     robot.position.y = y;
@@ -424,7 +424,7 @@ function animate() {
     }
 
     if(moveHead[1]){
-        if (pivot[0].rotation.x > -Math.PI / 2){
+        if (pivot[0].rotation.x > -Math.PI){
             pivot[0].rotation.x -= Math.PI / 64;
         }
     }
