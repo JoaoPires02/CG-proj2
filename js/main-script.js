@@ -1,11 +1,8 @@
 //////////////////////
 /* GLOBAL VARIABLES */
 //////////////////////
-var scene, renderer;
 
-var currentCamera = 0;
-
-var trailer, robot, core, head, rArm, lArm, rLeg, lLeg, rFoot, lFoot;
+const MIN = 0; const MAX = 1; const X = 0; const Z = 1;
 
 const moveTrailer = [false, false, false, false];
 
@@ -23,6 +20,18 @@ const materials = [];
 
 const pivot = [];
 
+var scene, renderer;
+
+var currentCamera = 0;
+
+var trailer, robot, core, head, rArm, lArm, rLeg, lLeg, rFoot, lFoot;
+
+var isTruckBool, duringAnimation;
+
+var trailerBB = [];
+
+var truckBB = [];
+
 /////////////////////
 /* CREATE SCENE(S) */
 /////////////////////
@@ -35,7 +44,10 @@ function createScene() {
     scene.background = new THREE.Color("rgb(200, 200, 200)");
 
     createTrailer(0, 1.5, -15);
-    createRobot(0, 0 ,0);
+    createRobot(0, 0, 0);
+
+    truckBB = [[-4.5, -13.5], [4.5, 2]];
+    trailerBB = [[-4, -25.5], [4, -4.5]];
 
 }
 
@@ -338,6 +350,12 @@ function createRobot(x, y ,z) {
 function checkCollisions(){
     'use strict';
 
+    if (trailerBB[MIN][X] <= truckBB[MAX][X] &&
+        trailerBB[MAX][X] >= truckBB[MIN][X] &&
+        trailerBB[MIN][Z] <= truckBB[MAX][Z] &&
+        trailerBB[MAX][Z] >= truckBB[MIN][Z]){
+            handleCollisions();
+        }
 }
 
 ///////////////////////
@@ -346,6 +364,36 @@ function checkCollisions(){
 function handleCollisions(){
     'use strict';
 
+    duringAnimation = true;
+
+    if (trailer.position.z < -24.2) {
+        trailer.position.z += 0.2;
+        trailerBB[MIN][Z] += 0.2;
+        trailerBB[MAX][Z] += 0.2;
+    }
+    if (trailer.position.z > -24.2) {
+        trailer.position.z -= 0.2;
+        trailerBB[MIN][Z] -= 0.2;
+        trailerBB[MAX][Z] -= 0.2;
+    }
+    if (trailer.position.x < 0) {
+        trailer.position.x += 0.2;
+        trailerBB[MIN][X] += 0.2;
+        trailerBB[MAX][X] += 0.2;
+    }
+    if (trailer.position.x > 0) {
+        trailer.position.x -= 0.2;
+        trailerBB[MIN][X] -= 0.2;
+        trailerBB[MAX][X] -= 0.2;
+    }
+
+    if (trailer.position.x > -0.2 && trailer.position.x < 0.2) {
+        if (trailer.position.z > -24.4 && trailer.position.z < -24.0) {
+            console.log("estou aqui bue yau skrr");
+            duringAnimation = false;
+        }
+    }
+
 }
 
 ////////////
@@ -353,6 +401,78 @@ function handleCollisions(){
 ////////////
 function update(){
     'use strict';
+
+    isTruckBool = isTruck();
+
+    if (!duringAnimation){
+        if(moveTrailer[0]){
+            trailer.position.x -= 0.2;
+            trailerBB[MIN][X] -= 0.2;
+            trailerBB[MAX][X] -= 0.2;
+        }
+        if(moveTrailer[1]){
+            trailer.position.z -= 0.2;
+            trailerBB[MIN][Z] -= 0.2;
+            trailerBB[MAX][Z] -= 0.2;
+        }
+        if(moveTrailer[2]){
+            trailer.position.x += 0.2;
+            trailerBB[MIN][X] += 0.2;
+            trailerBB[MAX][X] += 0.2;
+        }
+        if(moveTrailer[3]){
+            trailer.position.z += 0.2;
+            trailerBB[MIN][Z] += 0.2;
+            trailerBB[MAX][Z] += 0.2;
+        }
+        if(moveArms[0]){
+            if (lArm.position.x < 4.5){
+                lArm.position.x += 0.01;
+                rArm.position.x -= 0.01;
+            }
+        }
+        if(moveArms[1]){
+            if (lArm.position.x > 3.5){
+                rArm.position.x += 0.01;
+                lArm.position.x -= 0.01;
+            }
+        }
+        if(moveHead[0]){
+            if (pivot[0].rotation.x < 0){
+                pivot[0].rotation.x += Math.PI / 64;
+            }
+        }
+        if(moveHead[1]){
+            if (pivot[0].rotation.x > -Math.PI){
+                pivot[0].rotation.x -= Math.PI / 64;
+            }
+        }
+        if(moveLegs[0]){
+            if (pivot[1].rotation.x > 0){
+                pivot[1].rotation.x -= Math.PI / 64;
+            }
+        }
+        if(moveLegs[1]){
+            if (pivot[1].rotation.x < Math.PI / 2){
+                pivot[1].rotation.x += Math.PI / 64;
+            }
+        }
+        if(moveFeet[0]){
+            if (pivot[2].rotation.x > 0){
+                pivot[2].rotation.x -= Math.PI / 64;
+            }
+        }
+        if(moveFeet[1]){
+            if (pivot[2].rotation.x < Math.PI / 2){
+                pivot[2].rotation.x += Math.PI / 64;
+            }
+        }
+    }
+
+    duringAnimation = false;
+    if (isTruckBool){
+        checkCollisions();
+    }
 
 }
 
@@ -391,66 +511,7 @@ function init() {
 function animate() {
     'use strict';
 
-    if(moveTrailer[0]){
-        trailer.position.x -= 0.2;
-    }
-    if(moveTrailer[1]){
-        trailer.position.z -= 0.2;
-    }
-    if(moveTrailer[2]){
-        trailer.position.x += 0.2;
-    }
-    if(moveTrailer[3]){
-        trailer.position.z += 0.2;
-    }
-    if(moveArms[0]){
-        if (lArm.position.x < 4.5){
-            lArm.position.x += 0.01;
-            rArm.position.x -= 0.01;
-        }
-    }
-
-    if(moveArms[1]){
-        if (lArm.position.x > 3.5){
-            rArm.position.x += 0.01;
-            lArm.position.x -= 0.01;
-        }
-    }
-
-    if(moveHead[0]){
-        if (pivot[0].rotation.x <= 0){
-            pivot[0].rotation.x += Math.PI / 64;
-        }
-    }
-
-    if(moveHead[1]){
-        if (pivot[0].rotation.x > -Math.PI){
-            pivot[0].rotation.x -= Math.PI / 64;
-        }
-    }
-
-    if(moveLegs[0]){
-        if (pivot[1].rotation.x > 0){
-            pivot[1].rotation.x -= Math.PI / 64;
-        }
-    }
-
-    if(moveLegs[1]){
-        if (pivot[1].rotation.x < Math.PI / 2){
-            pivot[1].rotation.x += Math.PI / 64;
-        }
-    }
-    if(moveFeet[0]){
-        if (pivot[2].rotation.x > 0){
-            pivot[2].rotation.x -= Math.PI / 64;
-        }
-    }
-
-    if(moveFeet[1]){
-        if (pivot[2].rotation.x < Math.PI / 2){
-            pivot[2].rotation.x += Math.PI / 64;
-        }
-    }
+    update();
 
     render(currentCamera);
 
@@ -593,4 +654,16 @@ function onKeyUp(e){
             moveFeet[0] = false;
             break;
     }
+}
+
+//////////////////////////////////////
+/* CHECKS IF ROBOT IS IN TRUCK MODE */
+//////////////////////////////////////
+function isTruck() {
+    if (-Math.PI - 0.05 > pivot[0].rotation.x || pivot[0].rotation.x > -Math.PI + 0.05) return false;
+    if (Math.PI/2 - 0.05 > pivot[1].rotation.x || pivot[1].rotation.x > Math.PI/2 + 0.05) return false;
+    if (Math.PI/2 - 0.05 > pivot[2].rotation.x || pivot[2].rotation.x > Math.PI/2 + 0.05) return false;
+    if ((3.49 > lArm.position.x || lArm.position.x > 3.51)) return false;
+
+    return true;
 }
