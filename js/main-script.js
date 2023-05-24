@@ -389,7 +389,6 @@ function handleCollisions(){
 
     if (trailer.position.x > -0.2 && trailer.position.x < 0.2) {
         if (trailer.position.z > -24.4 && trailer.position.z < -24.0) {
-            console.log("estou aqui bue yau skrr");
             duringAnimation = false;
         }
     }
