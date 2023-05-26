@@ -403,8 +403,8 @@ function handleCollisions(){
         trailerBB[MAX][X] -= trailerSpeed * delta;
     }
 
-    if (trailer.position.x > -0.1 && trailer.position.x < 0.1) {
-        if (trailer.position.z > -15.6 && trailer.position.z < -15.4) {
+    if (trailer.position.x > (0 - trailerSpeed * delta) && trailer.position.x < (0 + trailerSpeed * delta)) {
+        if (trailer.position.z > (-15.5 - trailerSpeed * delta) && trailer.position.z < (-15.5 + trailerSpeed * delta)) {
             duringAnimation = false;
         }
     }
