@@ -4,14 +4,19 @@
 
 const MIN = 0; const MAX = 1; const X = 0; const Z = 1;
 
+// [-x, -z, +x, +z]
 const moveTrailer = [false, false, false, false];
 
+// [close arms, open arms]
 const moveArms = [false, false];
 
+// [head outside, head inside]
 const moveHead = [false, false];
 
+// [legs in robot mode, legs in truck mode]
 const moveLegs = [false, false];
 
+// [feet in robot mode, feet in truck mode]
 const moveFeet = [false, false];
 
 const cameras = [];
@@ -398,8 +403,8 @@ function handleCollisions(){
         trailerBB[MAX][X] -= trailerSpeed * delta;
     }
 
-    if (trailer.position.x > -0.2 && trailer.position.x < 0.2) {
-        if (trailer.position.z > -15.7 && trailer.position.z < -15.3) {
+    if (trailer.position.x > -0.1 && trailer.position.x < 0.1) {
+        if (trailer.position.z > -15.6 && trailer.position.z < -15.4) {
             duringAnimation = false;
         }
     }
@@ -606,12 +611,12 @@ function onKeyDown(e) {
         case 119:
             moveLegs[0] = true;
             break;
-        case 81: //Q(q)
-        case 113:
-            moveFeet[1] = true;
-            break;
         case 65: //A(a)
         case 97:
+            moveFeet[1] = true;
+            break;
+        case 81: //Q(q)
+        case 113:
             moveFeet[0] = true;
             break;
     }
@@ -662,12 +667,12 @@ function onKeyUp(e){
         case 119:
             moveLegs[0] = false;
             break;
-        case 81: //Q(q)
-        case 113:
-            moveFeet[1] = false;
-            break;
         case 65: //A(a)
         case 97:
+            moveFeet[1] = false;
+            break;
+        case 81: //Q(q)
+        case 113:
             moveFeet[0] = false;
             break;
     }
