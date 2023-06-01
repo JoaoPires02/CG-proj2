@@ -5,6 +5,8 @@ var scene;
 
 var camera, renderer;
 
+const materials = [];
+
 
 /////////////////////
 /* CREATE SCENE(S) */
@@ -14,28 +16,31 @@ function createScene(){
 
     scene = new THREE.Scene();
 
-    scene.add(new THREE.AxisHelper(10));
+    scene.add(new THREE.AxesHelper(10));
     scene.background = new THREE.Color("rgb(200, 200, 200)");
 
-    createCamera();
+    materials[0] = new THREE.MeshLambertMaterial( {color: 0x00ff00} );
+    materials[1] = new THREE.MeshPhongMaterial( {color: 0x00ff00} );
+    materials[2] = new THREE.MeshToonMaterial( {color: 0x00ff00} );
+
     createGround();
 
 }
 
 function createGround() {
-    const groundGeo = new THREE.PlaneGeometry(100, 100);
+    const groundGeo = new THREE.PlaneGeometry(200, 200, 100, 100);
 
     let disMap = new THREE.TextureLoader()
-        .load('heightmap.png');
+        .load('https://web.tecnico.ulisboa.pt/~ist199090/heightmap.png');
 
     disMap.wrapS = disMap.wrapT = THREE.RepeatWrapping;
-    disMap.repeat.set(100, 100);
+    disMap.repeat.set(1, 1);
 
     const groundMat = new THREE.MeshStandardMaterial ({
         color: 0x000000,
         wireframe: true,
         displacementMap: disMap,
-        displacementScale: 1,
+        displacementScale: 50,
     });
 
     groundMesh = new THREE.Mesh(groundGeo, groundMat);
@@ -112,7 +117,7 @@ function init() {
     document.body.appendChild(renderer.domElement);
 
     createScene();
-    createCamera();
+    createCamera(100, 100, 100);
 
     render(camera);
 
@@ -134,6 +139,11 @@ function animate() {
 ////////////////////////////
 function onResize() { 
     'use strict';
+
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    render();
 
 }
 
