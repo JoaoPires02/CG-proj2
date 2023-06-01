@@ -31,7 +31,7 @@ function createGround() {
     const groundGeo = new THREE.PlaneGeometry(200, 200, 100, 100);
 
     let disMap = new THREE.TextureLoader()
-        .load('https://web.tecnico.ulisboa.pt/~ist199090/heightmap.png');
+        .load('https://web.tecnico.ulisboa.pt/~ist199090/heightmap.jpg');
 
     disMap.wrapS = disMap.wrapT = THREE.RepeatWrapping;
     disMap.repeat.set(1, 1);
@@ -131,6 +131,12 @@ function init() {
 /////////////////////
 function animate() {
     'use strict';
+
+    update();
+
+    render(camera);
+
+    requestAnimationFrame(animate);
 
 }
 
