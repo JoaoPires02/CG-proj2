@@ -4,14 +4,19 @@
 
 const MIN = 0; const MAX = 1; const X = 0; const Z = 1;
 
+// [-x, -z, +x, +z]
 const moveTrailer = [false, false, false, false];
 
+// [close arms, open arms]
 const moveArms = [false, false];
 
+// [head outside, head inside]
 const moveHead = [false, false];
 
+// [legs in robot mode, legs in truck mode]
 const moveLegs = [false, false];
 
+// [feet in robot mode, feet in truck mode]
 const moveFeet = [false, false];
 
 const cameras = [];
@@ -20,7 +25,13 @@ const materials = [];
 
 const pivot = [];
 
-var scene, renderer;
+const trailerSpeed = 20;
+
+const armSpeed = 1;
+
+const rotationSpeed = Math.PI / 2;
+
+var scene, renderer, delta;
 
 var currentCamera = 0;
 
@@ -31,6 +42,8 @@ var isTruckBool, duringAnimation;
 var trailerBB = [];
 
 var truckBB = [];
+
+var clock;
 
 /////////////////////
 /* CREATE SCENE(S) */
@@ -46,8 +59,8 @@ function createScene() {
     createTrailer(0, 1.5, -15);
     createRobot(0, 0, 0);
 
-    truckBB = [[-4.5, -13.5], [4.5, 2]];
-    trailerBB = [[-4, -25.5], [4, -4.5]];
+    truckBB = [[-4.5, -9], [4.5, 2]];
+    trailerBB = [[-4, -25.5], [4, -8.75]];
 
 }
 
@@ -63,19 +76,23 @@ function createCamera(id, x, y, z) {
     cameras[id].lookAt(scene.position);
 }
 
-function createAllCameras() {
+function createOrthoCamera(id, x, y, z) {
     'use strict';
-    createCamera(0, 0, 0, 50);
-    createCamera(1, -50, 0, 0);
-    createCamera(2, 0, 50, 0);
-    createCamera(3, 50, 50, 0);
-    createCamera(4, 20, 0, 50);
+    cameras[id] = new THREE.OrthographicCamera(window.innerWidth / -20,  window.innerWidth / 20, window.innerHeight / 20, window.innerHeight / -20, 1, 1000);
+    cameras[id].position.x = x;
+    cameras[id].position.y = y;
+    cameras[id].position.z = z;
+    cameras[id].lookAt(scene.position);
 }
 
-
-/////////////////////
-/* CREATE LIGHT(S) */
-/////////////////////
+function createAllCameras() {
+    'use strict';
+    createOrthoCamera(0, 0, 0, 50);
+    createOrthoCamera(1, -50, 0, 0);
+    createOrthoCamera(2, 0, 50, 0);
+    createCamera(3, 50, 50, 50);
+    createCamera(4, 20, 10, 50);
+}
 
 ////////////////////////
 /* CREATE OBJECT3D(S) */
@@ -92,7 +109,7 @@ function addTrailerBody(obj, x, y, z) {
 function addTrailerBase(obj, x, y, z) {
     'use strict'
 
-    var geometry = new THREE.BoxGeometry(5, 1, 16);
+    var geometry = new THREE.BoxGeometry(5, 1, 12);
     var mesh = new THREE.Mesh(geometry, materials[1]);
     mesh.position.set(x, y, z);
     obj.add(mesh);
@@ -118,7 +135,7 @@ function createTrailer(x, y, z) {
     materials[2] = new THREE.MeshBasicMaterial({ color: 0x383838, wireframe: true }); //material for wheel
 
     addTrailerBody(trailer, 0, 0, 0)
-    addTrailerBase(trailer, 0, -5.5, -1.5);
+    addTrailerBase(trailer, 0, -5.5, -3.5);
     addWheel(trailer, 3.25, -6.5, -6.5);
     addWheel(trailer, 3.25, -6.5, -8.5);
     addWheel(trailer, -3.25, -6.5, -6.5);
@@ -256,7 +273,7 @@ function addRobotLegs(obj){
     rLeg.position.set(-1.5, -5.5, 0);
 
     
-    pivot[2].position.set(0, -4.5, -1);
+    pivot[2].position.set(0, -4, -1);
     lFoot.position.set(3.75, 0.75, 1.75);
     rFoot.position.set(-0.75, 0.75, 1.75);
     
@@ -321,7 +338,6 @@ function addRobotFoot(obj, side, x, y, z) {
     }
 }
 
-
 function createRobot(x, y ,z) {
     'use strict'
 
@@ -366,29 +382,29 @@ function handleCollisions(){
 
     duringAnimation = true;
 
-    if (trailer.position.z < -24.2) {
-        trailer.position.z += 0.2;
-        trailerBB[MIN][Z] += 0.2;
-        trailerBB[MAX][Z] += 0.2;
+    if (trailer.position.z < -15.5) {
+        trailer.position.z += trailerSpeed * delta;
+        trailerBB[MIN][Z] += trailerSpeed * delta;
+        trailerBB[MAX][Z] += trailerSpeed * delta;
     }
-    if (trailer.position.z > -24.2) {
-        trailer.position.z -= 0.2;
-        trailerBB[MIN][Z] -= 0.2;
-        trailerBB[MAX][Z] -= 0.2;
+    if (trailer.position.z > -15.5) {
+        trailer.position.z -= trailerSpeed * delta;
+        trailerBB[MIN][Z] -= trailerSpeed * delta;
+        trailerBB[MAX][Z] -= trailerSpeed * delta;
     }
     if (trailer.position.x < 0) {
-        trailer.position.x += 0.2;
-        trailerBB[MIN][X] += 0.2;
-        trailerBB[MAX][X] += 0.2;
+        trailer.position.x += trailerSpeed * delta;
+        trailerBB[MIN][X] += trailerSpeed * delta;
+        trailerBB[MAX][X] += trailerSpeed * delta;
     }
     if (trailer.position.x > 0) {
-        trailer.position.x -= 0.2;
-        trailerBB[MIN][X] -= 0.2;
-        trailerBB[MAX][X] -= 0.2;
+        trailer.position.x -= trailerSpeed * delta;
+        trailerBB[MIN][X] -= trailerSpeed * delta;
+        trailerBB[MAX][X] -= trailerSpeed * delta;
     }
 
-    if (trailer.position.x > -0.2 && trailer.position.x < 0.2) {
-        if (trailer.position.z > -24.4 && trailer.position.z < -24.0) {
+    if (trailer.position.x > (0 - trailerSpeed * delta) && trailer.position.x < (0 + trailerSpeed * delta)) {
+        if (trailer.position.z > (-15.5 - trailerSpeed * delta) && trailer.position.z < (-15.5 + trailerSpeed * delta)) {
             duringAnimation = false;
         }
     }
@@ -405,72 +421,75 @@ function update(){
 
     if (!duringAnimation){
         if(moveTrailer[0]){
-            trailer.position.x -= 0.2;
-            trailerBB[MIN][X] -= 0.2;
-            trailerBB[MAX][X] -= 0.2;
+            trailer.position.x -= trailerSpeed * delta;
+            trailerBB[MIN][X] -= trailerSpeed * delta;
+            trailerBB[MAX][X] -= trailerSpeed * delta;
         }
         if(moveTrailer[1]){
-            trailer.position.z -= 0.2;
-            trailerBB[MIN][Z] -= 0.2;
-            trailerBB[MAX][Z] -= 0.2;
+            trailer.position.z -= trailerSpeed * delta;
+            trailerBB[MIN][Z] -= trailerSpeed * delta;
+            trailerBB[MAX][Z] -= trailerSpeed * delta;
         }
         if(moveTrailer[2]){
-            trailer.position.x += 0.2;
-            trailerBB[MIN][X] += 0.2;
-            trailerBB[MAX][X] += 0.2;
+            trailer.position.x += trailerSpeed * delta;
+            trailerBB[MIN][X] += trailerSpeed * delta;
+            trailerBB[MAX][X] += trailerSpeed * delta;
         }
         if(moveTrailer[3]){
-            trailer.position.z += 0.2;
-            trailerBB[MIN][Z] += 0.2;
-            trailerBB[MAX][Z] += 0.2;
+            trailer.position.z += trailerSpeed * delta;
+            trailerBB[MIN][Z] += trailerSpeed * delta;
+            trailerBB[MAX][Z] += trailerSpeed * delta;
         }
         if(moveArms[0]){
             if (lArm.position.x < 4.5){
-                lArm.position.x += 0.01;
-                rArm.position.x -= 0.01;
+                lArm.position.x += armSpeed * delta;
+                rArm.position.x -= armSpeed * delta;
             }
         }
         if(moveArms[1]){
             if (lArm.position.x > 3.5){
-                rArm.position.x += 0.01;
-                lArm.position.x -= 0.01;
+                rArm.position.x += armSpeed * delta;
+                lArm.position.x -= armSpeed * delta;
             }
         }
         if(moveHead[0]){
             if (pivot[0].rotation.x < 0){
-                pivot[0].rotation.x += Math.PI / 64;
+                pivot[0].rotation.x += rotationSpeed * delta;
             }
         }
         if(moveHead[1]){
             if (pivot[0].rotation.x > -Math.PI){
-                pivot[0].rotation.x -= Math.PI / 64;
+                pivot[0].rotation.x -= rotationSpeed * delta;
             }
         }
         if(moveLegs[0]){
             if (pivot[1].rotation.x > 0){
-                pivot[1].rotation.x -= Math.PI / 64;
+                pivot[1].rotation.x -= rotationSpeed * delta;
             }
         }
         if(moveLegs[1]){
             if (pivot[1].rotation.x < Math.PI / 2){
-                pivot[1].rotation.x += Math.PI / 64;
+                pivot[1].rotation.x += rotationSpeed * delta;
             }
         }
         if(moveFeet[0]){
             if (pivot[2].rotation.x > 0){
-                pivot[2].rotation.x -= Math.PI / 64;
+                pivot[2].rotation.x -= rotationSpeed * delta;
             }
         }
         if(moveFeet[1]){
             if (pivot[2].rotation.x < Math.PI / 2){
-                pivot[2].rotation.x += Math.PI / 64;
+                pivot[2].rotation.x += rotationSpeed * delta;
             }
+        }
+
+        if (isTruckBool){
+            checkCollisions();
         }
     }
 
-    duringAnimation = false;
-    if (isTruckBool){
-        checkCollisions();
+    else{
+        handleCollisions();
     }
 
 }
@@ -480,6 +499,7 @@ function update(){
 /////////////
 function render(camera) {
     'use strict';
+
     renderer.render(scene, cameras[camera]);
 }
 
@@ -496,6 +516,7 @@ function init() {
 
     createScene();
     createAllCameras();
+    clock = new THREE.Clock();
 
     render(currentCamera);
 
@@ -509,6 +530,8 @@ function init() {
 /////////////////////
 function animate() {
     'use strict';
+
+    delta = clock.getDelta();
 
     update();
 
@@ -588,12 +611,12 @@ function onKeyDown(e) {
         case 119:
             moveLegs[0] = true;
             break;
-        case 81: //Q(q)
-        case 113:
-            moveFeet[1] = true;
-            break;
         case 65: //A(a)
         case 97:
+            moveFeet[1] = true;
+            break;
+        case 81: //Q(q)
+        case 113:
             moveFeet[0] = true;
             break;
     }
@@ -644,12 +667,12 @@ function onKeyUp(e){
         case 119:
             moveLegs[0] = false;
             break;
-        case 81: //Q(q)
-        case 113:
-            moveFeet[1] = false;
-            break;
         case 65: //A(a)
         case 97:
+            moveFeet[1] = false;
+            break;
+        case 81: //Q(q)
+        case 113:
             moveFeet[0] = false;
             break;
     }
