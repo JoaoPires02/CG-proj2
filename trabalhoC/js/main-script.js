@@ -3,15 +3,19 @@
 //////////////////////
 var groundGeo, groundMat;
 
-var skydome;
+var skydome, moon;
 
-var scene, terrainScene;
+var scene;
 
-var camera, renderer, terrainRenderer;
+var camera, renderer;
 
 var fieldTexture, skydomeTexture;
 
 const materials = [];
+
+var moonLight;
+
+var isMoonLightOn = true;
 
 
 /////////////////////
@@ -31,14 +35,35 @@ function createScene(){
 
     createGround();
     createSkydome();
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
-    directionalLight.position.set(1, 1, 1);
-    scene.add(directionalLight);
+    createMoon();
+    createMoonLight();
+    createAmbientLight();
 
-    
+}
 
-    
+function createMoon() {
+    var moonGeo = new THREE.SphereGeometry(10, 32, 32);
+    var moonMat = new THREE.MeshStandardMaterial({
+        color: 0xffff00, 
+        emissive: 0xffff00, 
+        emissiveIntensity: 1, 
+        roughness: 0,
+        metalness: 0
+    });
 
+    moon = new THREE.Mesh(moonGeo, moonMat);
+    moon.position.set(30, 30, 30); 
+    scene.add(moon);
+}
+
+function toggleMoonlight() {
+    isMoonLightOn = !isMoonLightOn;
+
+    if (isMoonLightOn) {
+        moonLight.intensity = 1;
+    } else {
+        moonLight.intensity = 0;
+    }
 }
 
 function createGround() {
@@ -162,6 +187,17 @@ function createCamera(x, y, z) {
 /* CREATE LIGHT(S) */
 /////////////////////
 
+function createMoonLight() {
+    moonLight = new THREE.DirectionalLight(0xffff00, 1);
+    moonLight.position.copy(moon.position);
+    scene.add(moonLight);
+}
+
+function createAmbientLight() {
+    ambientLight = new THREE.AmbientLight(0x404040, 0.2);
+    scene.add(ambientLight);
+}
+
 ////////////////////////
 /* CREATE OBJECT3D(S) */
 ////////////////////////
@@ -255,15 +291,20 @@ function onKeyDown(e) {
     'use strict';
 
     switch (e.keyCode) {
-        case 49: //LEFT ARROW
+        case 49: // Generate and apply new field texture
             applyFieldTexture();
             render();
             console.log("111111");
             break;
-        case 50:
+        case 50: // Generate and apply new field texture
             applySkydomeTexture();
             render();
             console.log("222222");
+            break;
+        case 68: // Turn moon light on and off
+            toggleMoonlight();
+            render();
+            console.log("333333");
             break;
 
     }
