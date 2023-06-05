@@ -1,7 +1,7 @@
 //////////////////////
 /* GLOBAL VARIABLES */
 //////////////////////
-var groundGeo, groundMat;
+var groundGeo;
 
 var skydome, moon;
 
@@ -11,7 +11,11 @@ var camera, renderer;
 
 var fieldTexture, skydomeTexture;
 
+const groundMat = [];
+
 const materials = [];
+
+const moonMaterials = [];
 
 var moonLight;
 
@@ -29,21 +33,18 @@ function createScene(){
     scene.add(new THREE.AxesHelper(10));
     scene.background = new THREE.Color("rgb(200, 200, 200)");
 
-    materials[0] = new THREE.MeshLambertMaterial( {color: 0x00ff00} );
-    materials[1] = new THREE.MeshPhongMaterial( {color: 0x00ff00} );
-    materials[2] = new THREE.MeshToonMaterial( {color: 0x00ff00} );
-
     createGround();
     createSkydome();
     createMoon();
     createMoonLight();
     createAmbientLight();
+    createTree(30, 40, 60, -(25 * Math.PI) / 180);
 
 }
 
 function createMoon() {
     var moonGeo = new THREE.SphereGeometry(10, 32, 32);
-    var moonMat = new THREE.MeshStandardMaterial({
+    moonMaterials[0] = new THREE.MeshStandardMaterial({
         color: 0xffff00, 
         emissive: 0xffff00, 
         emissiveIntensity: 1, 
@@ -51,8 +52,12 @@ function createMoon() {
         metalness: 0
     });
 
-    moon = new THREE.Mesh(moonGeo, moonMat);
-    moon.position.set(30, 30, 30); 
+    moonMaterials[1] = new THREE.MeshBasicMaterial({
+        color: 0xffff00, 
+    });
+
+    moon = new THREE.Mesh(moonGeo, moonMaterials[0]);
+    moon.position.set(-60, 90, 0); 
     scene.add(moon);
 }
 
@@ -70,21 +75,21 @@ function createGround() {
     groundGeo = new THREE.PlaneGeometry(200, 200, 100, 100);
 
     let disMap = new THREE.TextureLoader()
-        .load('https://web.tecnico.ulisboa.pt/~ist199090/heightmap.jpg');
+        .load('https://web.tecnico.ulisboa.pt/~ist199090/alentejo.png');
 
     disMap.wrapS = disMap.wrapT = THREE.RepeatWrapping;
     disMap.repeat.set(1, 1);
 
-    groundMat = new THREE.MeshStandardMaterial ({
+    groundMat[0] = new THREE.MeshStandardMaterial ({
         color: 0xffffff,
         wireframe: false,
         displacementMap: disMap,
-        displacementScale: 50,
+        displacementScale: 100,
         roughness: 1,
         metalness: 0,
     });
 
-    groundMesh = new THREE.Mesh(groundGeo, groundMat);
+    groundMesh = new THREE.Mesh(groundGeo, groundMat[0]);
     scene.add(groundMesh);
     groundMesh.rotation.x = -Math.PI / 2;
     groundMesh.position.y = -0.5;
@@ -169,6 +174,35 @@ function applySkydomeTexture() {
     skydome.needsUpdate = true;
 }
 
+function createTree(x, y, z, theta) {
+    'use strict'
+
+    var tree = new THREE.Object3D();
+
+    addLog(tree, theta);
+
+    scene.add(tree);
+    tree.position.set(x, y, z);
+
+}
+
+function addLog(obj, theta) {
+    'use strict'
+    
+    var material = new THREE.MeshBasicMaterial({ color: 0x8b4513, wireframe: true });
+    var geometry1 = new THREE.CylinderGeometry(2, 2, 8, 8);
+    var mesh1 = new THREE.Mesh(geometry1, material);
+    mesh1.rotation.y = (25 * Math.PI) / 180;
+
+    var geometry2 = new THREE.CylinderGeometry(2, 2, 8, 6);
+    var mesh2 = new THREE.Mesh(geometry2, material);
+    mesh2.position.set(0, 2, -1);
+    mesh2.rotation.y = theta;
+
+    obj.add(mesh1);
+    obj.add(mesh2);
+}
+
 //////////////////////
 /* CREATE CAMERA(S) */
 //////////////////////
@@ -194,7 +228,7 @@ function createMoonLight() {
 }
 
 function createAmbientLight() {
-    ambientLight = new THREE.AmbientLight(0x404040, 0.2);
+    ambientLight = new THREE.AmbientLight(0xffff00, 0.2);
     scene.add(ambientLight);
 }
 
@@ -248,7 +282,7 @@ function init() {
     document.body.appendChild(renderer.domElement);
 
     createScene();
-    createCamera(100, 100, 100);
+    createCamera(125, 100, 125);
 
     render(camera);
 
@@ -294,17 +328,14 @@ function onKeyDown(e) {
         case 49: // Generate and apply new field texture
             applyFieldTexture();
             render();
-            console.log("111111");
             break;
         case 50: // Generate and apply new field texture
             applySkydomeTexture();
             render();
-            console.log("222222");
             break;
         case 68: // Turn moon light on and off
             toggleMoonlight();
             render();
-            console.log("333333");
             break;
 
     }
