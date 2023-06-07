@@ -3,9 +3,15 @@
 //////////////////////
 var groundGeo, groundMesh;
 
-var skydome, moon;
+var skydome, moon, ufo;
 
-var scene;
+var scene, delta, clock;
+
+var skyTextureApplied = false;
+
+var fieldTextureApplied = false;
+
+const ufoSpeed = 30;
 
 var previousMaterial;
 
@@ -27,9 +33,29 @@ var logMat = [];
 
 var leavesMat = [];
 
-var moonLight;
+var ufoCockpitMat = [];
+
+var ufoBodyMat = [];
+
+var ufoBaseMat = [];
+
+var ufoLightsMat = [];
+
+var ufoBodyMat = [];
+
+var ufoSpheresMat = [];
+
+var moveUFO = [false, false, false, false];
+
+var moonLight, ambientLight, spotLight;
+
+var pointLights = [];
 
 var isMoonLightOn = true;
+
+var isSpotLightOn = true;
+
+var arePointLightsOn = true;
 
 
 /////////////////////
@@ -48,6 +74,9 @@ function createScene(){
     createMoon();
     createMoonLight();
     createAmbientLight();
+    createSpotLight();
+    prepareUFO();
+    createUFO(0, 90, 0);
     
     prepareTree();
     
@@ -83,18 +112,8 @@ function createMoon() {
     });
 
     moon = new THREE.Mesh(moonGeo, moonMaterials[1]);
-    moon.position.set(-60, 90, -40); 
+    moon.position.set(-60, 140, -40); 
     scene.add(moon);
-}
-
-function toggleMoonlight() {
-    isMoonLightOn = !isMoonLightOn;
-
-    if (isMoonLightOn) {
-        moonLight.intensity = 1;
-    } else {
-        moonLight.intensity = 0;
-    }
 }
 
 function createGround() {
@@ -213,7 +232,7 @@ function createSkydome() {
     domeMaterials[1] = new THREE.MeshLambertMaterial({ transparent: true, side: THREE.BackSide });
     domeMaterials[2] = new THREE.MeshPhongMaterial({ transparent: true, side: THREE.BackSide });
     domeMaterials[3] = new THREE.MeshToonMaterial({ transparent: true, side: THREE.BackSide });
-    var geometry = new THREE.SphereGeometry(145, 195, 195, 0, Math.PI * 2, 0, Math.PI / 2);
+    var geometry = new THREE.SphereGeometry(175, 235, 235, 0, Math.PI * 2, 0, Math.PI / 2);
     skydome = new THREE.Mesh(geometry, domeMaterials[1]);
     scene.add(skydome);
 }
@@ -227,7 +246,7 @@ function applySkydomeTexture() {
     domeMaterials[currentMaterial].needsUpdate = true;
 }
 
-function createLog1(x, y, z, height, rot, pos) {
+function createLog1(pos) {
     var log1 = new THREE.CylinderGeometry(1, 1, 10, 32);
     var log1Mesh = new THREE.Mesh(log1, logMat[1]);
     var leaves1 = new THREE.SphereGeometry(2, 32, 16);
@@ -244,7 +263,7 @@ function createLog1(x, y, z, height, rot, pos) {
     trees[pos].add(log1Mesh);
 }
 
-function createLog2(x, y, z, height, rot, pos) {
+function createLog2(pos) {
     var log2 = new THREE.CylinderGeometry(1, 1, 8, 32);
     var log2Mesh = new THREE.Mesh(log2, logMat[1]);
     var leaves2 = new THREE.SphereGeometry(2, 32, 16);
@@ -265,8 +284,8 @@ function createLog2(x, y, z, height, rot, pos) {
 function createTree(x, y, z, height, rot, pos) {
     trees[pos] = new THREE.Object3D();
 
-    createLog1(x, y, z, height, rot, pos);
-    createLog2(x, y, z, height, rot, pos);
+    createLog1(pos);
+    createLog2(pos);
 
     scene.add(trees[pos]);
     trees[pos].position.set(x, y, z);
@@ -275,15 +294,103 @@ function createTree(x, y, z, height, rot, pos) {
 }
 
 function prepareTree(){
-    logMat[0] = new THREE.MeshBasicMaterial({color: 0x2d1606});
-    logMat[1] = new THREE.MeshLambertMaterial({color: 0x2d1606});
-    logMat[2] = new THREE.MeshPhongMaterial({color: 0x2d1606});
-    logMat[3] = new THREE.MeshToonMaterial({color: 0x2d1606});
+    // log color: orange brown mix
+    logMat[0] = new THREE.MeshBasicMaterial({color: 0xA9671C}); 
+    logMat[1] = new THREE.MeshLambertMaterial({color: 0xA9671C});
+    logMat[2] = new THREE.MeshPhongMaterial({color: 0xA9671C});
+    logMat[3] = new THREE.MeshToonMaterial({color: 0xA9671C});
     
+    // leaves color: green
     leavesMat[0] = new THREE.MeshBasicMaterial({color: 0x139509});
     leavesMat[1] = new THREE.MeshLambertMaterial({color: 0x139509});
     leavesMat[2] = new THREE.MeshPhongMaterial({color: 0x139509});
     leavesMat[3] = new THREE.MeshToonMaterial({color: 0x139509});
+}
+
+function prepareUFO(){
+    // cockpit color: light blue
+    ufoCockpitMat[0] = new THREE.MeshBasicMaterial({color: 0xADD8E6}); 
+    ufoCockpitMat[1] = new THREE.MeshLambertMaterial({color: 0xADD8E6});
+    ufoCockpitMat[2] = new THREE.MeshPhongMaterial({color: 0xADD8E6});
+    ufoCockpitMat[3] = new THREE.MeshToonMaterial({color: 0xADD8E6});
+
+    // base color: dark grey
+    ufoBaseMat[0] = new THREE.MeshBasicMaterial({color: 0x5A5A5A});
+    ufoBaseMat[1] = new THREE.MeshLambertMaterial({color: 0x5A5A5A});
+    ufoBaseMat[2] = new THREE.MeshPhongMaterial({color: 0x5A5A5A});
+    ufoBaseMat[3] = new THREE.MeshToonMaterial({color: 0x5A5A5A});
+
+    // light emitting spheres color: orange
+    ufoLightsMat[0] = new THREE.MeshBasicMaterial({color: 0xFFD580}); 
+    ufoLightsMat[1] = new THREE.MeshLambertMaterial({color: 0xFFD580});
+    ufoLightsMat[2] = new THREE.MeshPhongMaterial({color: 0xFFD580});
+    ufoLightsMat[3] = new THREE.MeshToonMaterial({color: 0xFFD580});
+    
+    // ufo body color: light grey
+    ufoBodyMat[0] = new THREE.MeshBasicMaterial({color: 0xD3D3D3});
+    ufoBodyMat[1] = new THREE.MeshLambertMaterial({color: 0xD3D3D3});
+    ufoBodyMat[2] = new THREE.MeshPhongMaterial({color: 0xD3D3D3});
+    ufoBodyMat[3] = new THREE.MeshToonMaterial({color: 0xD3D3D3});
+}
+
+function addUFOBody(obj) {
+    var ufoBody = new THREE.SphereGeometry(12, 32, 16);
+    var ufoBodyMesh = new THREE.Mesh(ufoBody, ufoBodyMat[currentMaterial]);
+    ufoBody.scale(1, 1/6, 1);
+
+    obj.add(ufoBodyMesh);
+}
+
+function addUFOBase(obj) {
+    var base = new THREE.CylinderGeometry(4, 4, 1, 32);
+    var baseMesh = new THREE.Mesh(base, ufoBaseMat[currentMaterial]);
+    baseMesh.position.set(0, -2, 0);
+
+    obj.add(baseMesh);
+}
+
+function addCockpit(obj) {
+    var cockpit = new THREE.SphereGeometry(4, 32, 16);
+    var cockpitMesh = new THREE.Mesh(cockpit, ufoCockpitMat[currentMaterial]);
+    cockpitMesh.position.set(0, 2, 0);
+    obj.add(cockpitMesh);
+}
+
+function addUFOLights(obj) {
+    const sphereCount = 8;
+    const angleIncrement = (2 * Math.PI) / sphereCount;
+    var counter = 0;
+    
+    for (let i = 0; i < sphereCount; i++) {
+        const angle = i * angleIncrement;
+        var x = Math.cos(angle) * 8;
+        var z = Math.sin(angle) * 8;
+    
+        var sphereGeometry = new THREE.SphereGeometry(0.4, 32, 32);
+        var sphere = new THREE.Mesh(sphereGeometry, ufoLightsMat[currentMaterial]);
+        
+        sphere.position.set(x, -1.5, z);
+
+        createPointLight(sphere, x, z, counter);
+
+        obj.add(sphere);
+
+        counter++;
+    }
+}
+
+function createUFO(x, y, z){
+    ufo = new THREE.Object3D();
+
+    ufo.position.set(x, y, z);
+    
+    addUFOBody(ufo);
+    addUFOBase(ufo);
+    addCockpit(ufo);
+    addUFOLights(ufo);
+
+    scene.add(ufo);
+    
 }
 
 //////////////////////
@@ -304,15 +411,65 @@ function createCamera(x, y, z) {
 /* CREATE LIGHT(S) */
 /////////////////////
 
+function toggleMoonlight() {
+    isMoonLightOn = !isMoonLightOn;
+
+    if (isMoonLightOn) {
+        moonLight.intensity = 0.8;
+    } else {
+        moonLight.intensity = 0;
+    }
+}
+
+function toggleSpotlight() {
+    isSpotLightOn = !isSpotLightOn;
+
+    if (isSpotLightOn) {
+        spotLight.intensity = 1;
+    } else {
+        spotLight.intensity = 0;
+    }
+}
+
+function togglePointLights() {
+    arePointLightsOn = !arePointLightsOn;
+
+    if (arePointLightsOn) {
+        for(var i = 0; i < 8; i++){
+            pointLights[i].intensity = 1;
+        }
+    } else {
+        for(var i = 0; i < 8; i++){
+            pointLights[i].intensity = 0;
+        }
+    }
+}
+
 function createMoonLight() {
-    moonLight = new THREE.DirectionalLight(0xffff00, 1);
+    moonLight = new THREE.DirectionalLight(0xffff00, 0.8);
     moonLight.position.copy(moon.position);
+    moonLight.target.position.set( 0, 0, 0 );
     scene.add(moonLight);
 }
 
 function createAmbientLight() {
     ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
     scene.add(ambientLight);
+}
+
+function createSpotLight() {
+    spotLight = new THREE.SpotLight( 0xffff00, 1, 80, Math.PI / 16, 0.5, 0);
+    spotLight.position.set(0, 90, 0);
+    scene.add(spotLight);
+    scene.add(spotLight.target);
+}
+
+function createPointLight(sphere, x, z, count) {
+    const light = new THREE.PointLight(0xffa500, 0.75, 100);
+    light.position.set(x, -1.5, z);
+    sphere.add(light);
+    pointLights[count] = light;
+
 }
 
 ////////////////////////
@@ -341,6 +498,22 @@ function handleCollisions(){
 function update(){
     'use strict';
 
+    if(moveUFO[0] && ufo.position.x > -100){
+        ufo.position.x -= ufoSpeed * delta;
+    }
+    if(moveUFO[1] && ufo.position.z > -100){
+        ufo.position.z -= ufoSpeed * delta;
+    }
+    if(moveUFO[2] && ufo.position.x < 100){
+        ufo.position.x += ufoSpeed * delta;
+    }
+    if(moveUFO[3] && ufo.position.z < 100){
+        ufo.position.z += ufoSpeed * delta;
+    }
+
+    spotLight.position.set(ufo.position.x, spotLight.position.y, ufo.position.z);
+    spotLight.target.position.set(ufo.position.x, 0, ufo.position.z);
+
 }
 
 /////////////
@@ -367,6 +540,8 @@ function init() {
     createScene();
     createCamera(135, 80, -85);
 
+    clock = new THREE.Clock();
+
     render(camera);
 
     window.addEventListener("keydown", onKeyDown);
@@ -379,6 +554,8 @@ function init() {
 /////////////////////
 function animate() {
     'use strict';
+
+    delta = clock.getDelta();
 
     update();
 
@@ -402,8 +579,12 @@ function onResize() {
 }
 
 function changeMaterials() {
-    skydome.material = domeMaterials[currentMaterial];
-    groundMesh.material = groundMat[currentMaterial];
+    if (skyTextureApplied && fieldTextureApplied){
+        skydome.material = domeMaterials[currentMaterial];
+        groundMesh.material = groundMat[currentMaterial];
+    }
+
+
     moon.material = moonMaterials[currentMaterial];
     
     for (var i = 0; i < 3; i++){
@@ -411,6 +592,24 @@ function changeMaterials() {
         trees[i].children[0].children[0].material = leavesMat[currentMaterial];
         trees[i].children[1].material = logMat[currentMaterial];
         trees[i].children[1].children[0].material = leavesMat[currentMaterial];
+    }
+
+    for (var i = 0; i < 11; i++){
+        if (i == 0){
+            ufo.children[i].material = ufoBodyMat[currentMaterial];
+        }
+
+        else if (i == 1){
+            ufo.children[i].material = ufoBaseMat[currentMaterial];
+        }
+
+        else if (i == 2){
+            ufo.children[i].material = ufoCockpitMat[currentMaterial];
+        }
+
+        else if (i >= 3){
+            ufo.children[i].material = ufoLightsMat[currentMaterial];
+        }
     }
 }
 
@@ -421,19 +620,44 @@ function onKeyDown(e) {
     'use strict';
 
     switch (e.keyCode) {
-        case 49: // Generate and apply new field texture
+        case 37: //LEFT ARROW
+            moveUFO[0] = true;
+            break;
+        case 38: //UP ARROW
+            moveUFO[1] = true;
+            break;
+        case 39: //RIGHT ARROW
+            moveUFO[2] = true;
+            break;
+        case 40: //DOWN ARROW
+            moveUFO[3] = true;
+            break;
+        case 49: // 1 - Generate and apply new field texture
             applyFieldTexture();
+            fieldTextureApplied = true;
             render();
             break;
-        case 50: // Generate and apply new field texture
+        case 50: // 2 - Generate and apply new field texture
             applySkydomeTexture();
+            skyTextureApplied = true;
             render();
             break;
-        case 68: // Turn moon light on and off
+        case 68: // D(d) - Turn moon light on and off
+        case 100:
             toggleMoonlight();
             render();
             break;
-        case 82: // Turn off ilumination calculation
+        case 80: // P(p) - Toggle point lights
+        case 112:
+            togglePointLights();
+            render();
+            break;
+        case 83: // S(s) - Toggle spotlight
+        case 115:
+            toggleSpotlight();
+            render();
+            break;
+        case 82: // R(r) - Toggle ilumination calculation
         case 114:
             if (currentMaterial != 0){
             previousMaterial = currentMaterial;
@@ -445,19 +669,19 @@ function onKeyDown(e) {
             changeMaterials();
             render();
             break;
-        case 81: // Change to Lambert material
+        case 81: // Q(q) - Change to Lambert material
         case 113: 
             currentMaterial = 1;
             changeMaterials();
             render();
             break;
-        case 87: // Change to Phong material
+        case 87: // W(w) - Change to Phong material
         case 119: 
             currentMaterial = 2;
             changeMaterials();
             render();
             break;
-        case 69: // Change to Toon material
+        case 69: // E(e) - Change to Toon material
         case 101: 
             currentMaterial = 3;
             changeMaterials();
@@ -474,6 +698,20 @@ function onKeyDown(e) {
 ///////////////////////
 function onKeyUp(e){
     'use strict';
+    switch (e.keyCode) {
+        case 37: //LEFT ARROW
+            moveUFO[0] = false;
+            break;
+        case 38: //UP ARROW
+            moveUFO[1] = false;
+            break;
+        case 39: //RIGHT ARROW
+            moveUFO[2] = false;
+            break;
+        case 40: //DOWN ARROW
+            moveUFO[3] = false;
+            break;
+    }
 
 }
 
