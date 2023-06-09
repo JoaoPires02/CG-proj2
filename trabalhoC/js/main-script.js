@@ -173,7 +173,8 @@ function generateSkydomeTexture() {
 
     // Create a radial gradient for the skydome
     var gradient = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width / 2);
-    gradient.addColorStop(0, '#0d0a3a'); // Dark blue
+    gradient.addColorStop(0, '#09018b'); // blue
+    gradient.addColorStop(0.5, '#120d62'); // Dark blue
     gradient.addColorStop(1, '#1e003d'); // Dark violet
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -214,19 +215,19 @@ function createMoon() {
     moonMaterials[1] = new THREE.MeshLambertMaterial({
         color: 0xffff00, 
         emissive: 0xffff00, 
-        emissiveIntensity: 1, 
+        emissiveIntensity: 0.2, 
     });
 
     moonMaterials[2] = new THREE.MeshPhongMaterial({
         color: 0xffff00, 
         emissive: 0xffff00, 
-        emissiveIntensity: 1, 
+        emissiveIntensity: 0.2, 
     });
 
     moonMaterials[3] = new THREE.MeshToonMaterial({
         color: 0xffff00, 
         emissive: 0xffff00, 
-        emissiveIntensity: 1, 
+        emissiveIntensity: 0.2, 
     });
 
     moon = new THREE.Mesh(moonGeo, moonMaterials[1]);
@@ -853,14 +854,14 @@ function addChimney(walls){
     ]);
 
     var indices = [
-        3, 0, 4,
-        4, 6, 3,
+        0, 3, 6,
+        6, 4, 0,
 
         1, 0, 4,
         4, 5, 1,
 
         2, 1, 5,
-        5, 7, 3,
+        5, 7, 2,
 
         3, 2, 7,
         7, 6, 3,
@@ -1070,8 +1071,7 @@ function init() {
     document.body.appendChild(renderer.domElement);
 
     createScene();
-    //createCamera(150, 95, -100);
-    createCamera(80, 70, 70);
+    createCamera(150, 95, -100);
 
     clock = new THREE.Clock();
 
