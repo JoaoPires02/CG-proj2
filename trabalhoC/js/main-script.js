@@ -392,27 +392,27 @@ function addUFOLights(obj) {
 //////////////////
 function prepareHouse(){
     // Roof color: Brown
-    houseRoofMat[0] = new THREE.MeshBasicMaterial({color:   0x873e23, side : THREE.DoubleSide}); 
-    houseRoofMat[1] = new THREE.MeshLambertMaterial({color: 0x873e23, side : THREE.DoubleSide});
-    houseRoofMat[2] = new THREE.MeshPhongMaterial({color:   0x873e23, side : THREE.DoubleSide});
-    houseRoofMat[3] = new THREE.MeshToonMaterial({color:    0x873e23, side : THREE.DoubleSide});
+    houseRoofMat[0] = new THREE.MeshBasicMaterial({color:   0x873e23, side : THREE.FrontSide}); 
+    houseRoofMat[1] = new THREE.MeshLambertMaterial({color: 0x873e23, side : THREE.FrontSide});
+    houseRoofMat[2] = new THREE.MeshPhongMaterial({color:   0x873e23, side : THREE.FrontSide});
+    houseRoofMat[3] = new THREE.MeshToonMaterial({color:    0x873e23, side : THREE.FrontSide});
 
     // Wall and chimney color: White
-    houseWallMat[0] = new THREE.MeshBasicMaterial({color:   0xFFFFFF, side : THREE.DoubleSide});
-    houseWallMat[1] = new THREE.MeshLambertMaterial({color: 0xFFFFFF, side : THREE.DoubleSide});
-    houseWallMat[2] = new THREE.MeshPhongMaterial({color:   0xFFFFFF, side : THREE.DoubleSide});
-    houseWallMat[3] = new THREE.MeshToonMaterial({color:    0xFFFFFF, side : THREE.DoubleSide});
+    houseWallMat[0] = new THREE.MeshBasicMaterial({color:   0xFFFFFF, side : THREE.FrontSide});
+    houseWallMat[1] = new THREE.MeshLambertMaterial({color: 0xFFFFFF, side : THREE.FrontSide});
+    houseWallMat[2] = new THREE.MeshPhongMaterial({color:   0xFFFFFF, side : THREE.FrontSide});
+    houseWallMat[3] = new THREE.MeshToonMaterial({color:    0xFFFFFF, side : THREE.FrontSide});
 
     // Window and door color: Blue
-    houseWindowMat[0] = new THREE.MeshBasicMaterial({color:   0x0000FF, side : THREE.DoubleSide}); 
-    houseWindowMat[1] = new THREE.MeshLambertMaterial({color: 0x0000FF, side : THREE.DoubleSide});
-    houseWindowMat[2] = new THREE.MeshPhongMaterial({color:   0x0000FF, side : THREE.DoubleSide});
-    houseWindowMat[3] = new THREE.MeshToonMaterial({color:    0x0000FF, side : THREE.DoubleSide});
+    houseWindowMat[0] = new THREE.MeshBasicMaterial({color:   0x0000FF, side : THREE.FrontSide}); 
+    houseWindowMat[1] = new THREE.MeshLambertMaterial({color: 0x0000FF, side : THREE.FrontSide});
+    houseWindowMat[2] = new THREE.MeshPhongMaterial({color:   0x0000FF, side : THREE.FrontSide});
+    houseWindowMat[3] = new THREE.MeshToonMaterial({color:    0x0000FF, side : THREE.FrontSide});
 }
 
 function addSideWalls(walls, windows){
 
-    // Walls
+    // Wall 1
     const wallsGeometry = new THREE.BufferGeometry();
 
     var vertices = new Float32Array( [
@@ -463,12 +463,65 @@ function addSideWalls(walls, windows){
     wallsGeometry.computeVertexNormals();
     
     const wallSide1 = new THREE.Mesh( wallsGeometry, houseWallMat[1]);
-    const wallSide2 = new THREE.Mesh( wallsGeometry, houseWallMat[1]);
-
-    wallSide2.position.set(24, 0, 0);
 
     walls.add(wallSide1);
+
+    // Wall 1
+    const wallsGeometry2 = new THREE.BufferGeometry();
+
+    var vertices = new Float32Array( [
+        0,  0,  0, //v0
+        0,  0, 12, //v1
+        0,  4, 12, //v2
+        0,  4,  0, //v3
+
+        0,  8,  0, //v4
+        0,  8, 12, //v5
+        0, 12, 12, //v6
+        0, 12,  0, //v7
+
+        0,  4,  4, //v8
+        0,  4,  8, //v9
+        0,  8,  8, //v10
+        0,  8,  4, //v11
+
+        0, 18,  6, //v12
+
+        0, 0,  -1, //v13
+        0, 11,  0, //v14
+        0, 11, -1  //v15
+    ]);
+
+    var indices = [
+        1, 0, 3,
+        3, 2, 1,
+
+        8, 3, 4,
+        4, 11, 8,
+
+        2, 9, 10,
+        10, 5, 2,
+
+        5, 4, 7,
+        7, 6, 5,
+
+        6, 7, 12,
+
+        0, 13, 15,
+        15, 14, 0,
+    ];
+
+    wallsGeometry2.setIndex(indices);
+    wallsGeometry2.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+
+    wallsGeometry2.computeVertexNormals();
+    
+    const wallSide2 = new THREE.Mesh( wallsGeometry2, houseWallMat[1]);
+
+    wallSide2.position.set(48, 0, 0);
+
     walls.add(wallSide2);
+
 
     // Window
     const windowsGeometry = new THREE.BufferGeometry();
@@ -514,8 +567,8 @@ function addBackWall(walls, roof) {
     ]);
 
     var indices = [
-        0, 1, 2,
-        2, 3, 0,
+        1, 0, 3,
+        3, 2, 1,
     ];
 
     wallsGeometry.setIndex(indices);
@@ -541,8 +594,8 @@ function addBackWall(walls, roof) {
     ]);
 
     var indices = [
-        0, 1, 2,
-        2, 3, 0,
+        1, 0, 3,
+        3, 2, 1
     ];
 
     roofGeometry.setIndex(indices);
@@ -616,47 +669,47 @@ function addFrontWall(walls, roof, windows) {
     ]);
 
     var indices = [
-        0, 1, 2,
-        2, 3, 0,
+        1, 0, 3,
+        3, 2, 1,
 
-        4, 5, 6,
-        6, 7, 4,
+        5, 4, 7,
+        7, 6, 5,
 
-        3, 8, 9,
-        9, 10, 3,
+        8, 3, 10,
+        10, 9, 8,
 
-        11, 1, 12,
-        12, 13, 11,
+        1, 11, 13,
+        13, 12, 1,
 
-        7, 14, 15,
-        15, 16, 7,
+        14, 7, 16,
+        16, 15, 14,
 
-        17, 6, 18,
-        18, 19, 17,
+        6, 17, 19,
+        19, 18, 6,
 
-        10, 18, 20,
-        20, 21, 10,
+        18, 10, 21,
+        21, 20, 18,
 
-        22, 23, 24,
-        24, 25, 22,
+        23, 22, 25,
+        25, 24, 23,
 
-        26, 0, 21,
-        21, 27, 26,
+        0, 26, 27,
+        27, 21, 0,
 
-        5, 28, 29,
-        29, 20, 5,
+        28, 5, 20,
+        20, 29, 28,
 
-        30, 26, 27,
-        27, 31, 30,
+        26, 30, 31,
+        31, 27, 26,
 
-        28, 32, 33,
-        33, 29, 28,
+        32, 28, 29,
+        29, 33, 32,
 
-        31, 27, 21,
-        21, 34, 31,
+        27, 31, 34,
+        34, 21, 27,
 
-        29, 33, 35,
-        35, 20, 29
+        33, 29, 20,
+        20, 35, 33
 
     ];
 
@@ -693,17 +746,17 @@ function addFrontWall(walls, roof, windows) {
     ]);
 
     var indices = [
-        0, 1, 2,
-        2, 3, 0,
+        1, 0, 3,
+        3, 2, 1,
 
-        3, 4, 5,
-        5, 6, 3,
+        4, 3, 6,
+        6, 5, 4,
 
-        7, 2, 8,
-        8, 9, 7,
+        2, 7, 9,
+        9, 8, 2,
 
-        6, 8, 11,
-        11, 10, 6
+        8, 6, 10,
+        10, 11, 8
     ];
 
     roofGeometry.setIndex(indices);
@@ -739,14 +792,14 @@ function addFrontWall(walls, roof, windows) {
     ]);
 
     indices = [
-         0, 1, 2,
-         2, 3, 0,
+         1, 0, 3,
+         3, 2, 1,
 
-         4, 5, 6,
-         6, 7, 4,
+         5, 4, 7,
+         7, 6, 5,
 
-         8, 9, 10,
-        10, 11, 8,
+         9, 8, 11,
+        11, 10, 9,
     ];
 
     windowsGeometry.setIndex(indices);
@@ -995,6 +1048,7 @@ function init() {
 
     createScene();
     createCamera(150, 95, -100);
+    //createCamera(-150, 40, 0);
 
     clock = new THREE.Clock();
 
