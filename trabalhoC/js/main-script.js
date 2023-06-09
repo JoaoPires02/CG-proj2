@@ -85,13 +85,13 @@ function createScene(){
     createUFO(0, 90, 0);
 
     prepareHouse();
-    createHouse(-80, 25, 40);
+    createHouse(-70, 25, 40);
     
     prepareTree();
     
-    createTree(-80, 29, -80, 2, 0, 0);
-    createTree(70, 34, 70, 2.5, Math.PI / 2, 1);
-    createTree(60, 24, -60, 1, Math.PI / 4, 2);
+    createTree(-80, 29, -80, 2, Math.PI / 3, 0);
+    createTree(70, 39, 70, 2.5, Math.PI / 8, 1);
+    createTree(60, 40, -60, 1, Math.PI / 4, 2);
 
 }
 
@@ -99,10 +99,10 @@ function createScene(){
 //* CREATE GROUND *//
 /////////////////////
 function createGround() {
-    groundGeo = new THREE.PlaneGeometry(200, 200, 100, 100);
+    groundGeo = new THREE.PlaneGeometry(400, 400, 100, 100);
 
     let disMap = new THREE.TextureLoader()
-        .load('https://web.tecnico.ulisboa.pt/~ist199090/alentejo.png');
+        .load('https://web.tecnico.ulisboa.pt/~ist199090/alentejo4.png');
 
     disMap.wrapS = disMap.wrapT = THREE.RepeatWrapping;
     disMap.repeat.set(1, 1);
@@ -111,7 +111,7 @@ function createGround() {
         color: 0xffffff,
         wireframe: false,
         displacementMap: disMap,
-        displacementScale: 100,
+        displacementScale: 60,
     });
 
     groundMesh = new THREE.Mesh(groundGeo, groundMat);
@@ -159,7 +159,7 @@ function applyFieldTexture() {
 ////////////////////
 function createSkydome() {
     domeMaterials = new THREE.MeshPhongMaterial({ transparent: true, side: THREE.BackSide });
-    var geometry = new THREE.SphereGeometry(175, 235, 235, 0, Math.PI * 2, 0, Math.PI / 2);
+    var geometry = new THREE.SphereGeometry(175, 235, 235);
     skydome = new THREE.Mesh(geometry, domeMaterials);
     scene.add(skydome);
 }
@@ -994,7 +994,7 @@ function init() {
     document.body.appendChild(renderer.domElement);
 
     createScene();
-    createCamera(135, 80, -85);
+    createCamera(150, 95, -100);
 
     clock = new THREE.Clock();
 
@@ -1135,4 +1135,3 @@ function onKeyUp(e){
     }
 
 }
-
