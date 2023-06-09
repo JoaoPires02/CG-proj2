@@ -856,17 +856,17 @@ function addChimney(walls){
         3, 0, 4,
         4, 6, 3,
 
-        0, 1, 5,
-        5, 4, 0,
+        1, 0, 4,
+        4, 5, 1,
 
-        1, 2, 7,
-        7, 5, 1,
+        2, 1, 5,
+        5, 7, 3,
 
-        2, 3, 6,
-        6, 7, 2,
+        3, 2, 7,
+        7, 6, 3,
 
-        4, 5, 7,
-        7, 6, 4
+        5, 4, 6,
+        6, 7, 5
     ];
 
     chimneyGeometry.setIndex(indices);
@@ -1070,8 +1070,8 @@ function init() {
     document.body.appendChild(renderer.domElement);
 
     createScene();
-    createCamera(150, 95, -100);
-    //createCamera(-50, 40, 100);
+    //createCamera(150, 95, -100);
+    createCamera(80, 70, 70);
 
     clock = new THREE.Clock();
 
