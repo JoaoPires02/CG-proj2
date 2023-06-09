@@ -466,7 +466,7 @@ function addSideWalls(walls, windows){
 
     walls.add(wallSide1);
 
-    // Wall 1
+    // Wall 2
     const wallsGeometry2 = new THREE.BufferGeometry();
 
     var vertices = new Float32Array( [
@@ -523,7 +523,7 @@ function addSideWalls(walls, windows){
     walls.add(wallSide2);
 
 
-    // Window
+    // Window 1
     const windowsGeometry = new THREE.BufferGeometry();
 
 
@@ -545,11 +545,34 @@ function addSideWalls(walls, windows){
     windowsGeometry.computeVertexNormals();
     
     const window1 = new THREE.Mesh(windowsGeometry, houseWindowMat[1]);
-    const window2 = new THREE.Mesh(windowsGeometry, houseWindowMat[1]);
-
-    window2.position.set(24, 0, 0);
 
     windows.add(window1);
+
+    // Window 2
+    const windowsGeometry2 = new THREE.BufferGeometry();
+
+
+    vertices = new Float32Array( [
+        0,  4,  4, //v0
+        0,  4,  8, //v1
+        0,  8,  8, //v2
+        0,  8,  4  //v3
+    ]);
+
+    indices = [
+        1, 0, 3,
+        3, 2, 1,
+    ];
+
+    windowsGeometry2.setIndex(indices);
+    windowsGeometry2.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+
+    windowsGeometry2.computeVertexNormals();
+    
+    const window2 = new THREE.Mesh(windowsGeometry2, houseWindowMat[1]);~
+
+    window2.position.set(48, 0, 0);
+
     windows.add(window2);
 }
 
@@ -567,8 +590,8 @@ function addBackWall(walls, roof) {
     ]);
 
     var indices = [
-        1, 0, 3,
-        3, 2, 1,
+        0, 1, 2,
+        2, 3, 0
     ];
 
     wallsGeometry.setIndex(indices);
@@ -594,8 +617,8 @@ function addBackWall(walls, roof) {
     ]);
 
     var indices = [
-        1, 0, 3,
-        3, 2, 1
+        0, 1, 2,
+        2, 3, 0
     ];
 
     roofGeometry.setIndex(indices);
@@ -1048,7 +1071,7 @@ function init() {
 
     createScene();
     createCamera(150, 95, -100);
-    //createCamera(-150, 40, 0);
+    //createCamera(-50, 40, 100);
 
     clock = new THREE.Clock();
 
